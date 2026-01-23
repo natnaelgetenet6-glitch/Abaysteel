@@ -178,6 +178,27 @@ function renderShop() {
         return;
     }
 
+    // Group products by type
+    const groupedByType = {};
+    filtered.forEach(product => {
+        const key = product.type;
+        if (!groupedByType[key]) {
+            groupedByType[key] = [];
+        }
+        groupedByType[key].push(product);
+    });
+
+    const visibleTypes = Object.keys(groupedByType).sort();
+
+    // Auto-select if only one type is visible or if typed in filter
+    if (visibleTypes.length === 1) {
+        selectedProductType = visibleTypes[0];
+    }
+    // If selected type is no longer visible, deselect
+    else if (selectedProductType && !groupedByType[selectedProductType]) {
+        selectedProductType = null;
+    }
+
     // Create two-panel layout
     const leftPanel = document.createElement('div');
     leftPanel.className = 'items-panel';
@@ -188,21 +209,13 @@ function renderShop() {
     rightPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>';
     rightPanel.id = 'sizes-panel-content';
 
-    // Group products by type to get unique items
-    const groupedByType = {};
-    filtered.forEach(product => {
-        const key = product.type;
-        if (!groupedByType[key]) {
-            groupedByType[key] = [];
-        }
-        groupedByType[key].push(product);
-    });
-
     // Render items in left panel
-    Object.keys(groupedByType).sort().forEach(type => {
+    visibleTypes.forEach(type => {
         const itemCard = document.createElement('div');
         itemCard.className = `item-selector-card ${selectedProductType === type ? 'selected' : ''}`;
-        itemCard.onclick = () => selectProductType(type, groupedByType[type]);
+
+        // Pass event explicitly
+        itemCard.onclick = (e) => selectProductType(type, groupedByType[type], e);
 
         const products = groupedByType[type];
         const totalStock = products.reduce((sum, p) => sum + p.stock_quantity, 0);
@@ -221,25 +234,34 @@ function renderShop() {
     shopList.appendChild(leftPanel);
     shopList.appendChild(rightPanel);
 
-    // If a type was previously selected, re-render its sizes
+    // Initial render of right panel if selection exists
     if (selectedProductType && groupedByType[selectedProductType]) {
         renderSizesPanel(groupedByType[selectedProductType]);
     } else {
         document.getElementById('sizes-panel-content').innerHTML = `
             <h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>
-            <p style="color: var(--text-secondary); text-align: center; margin-top: 3rem;">Select an item to view sizes</p>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; color:var(--text-secondary); opacity:0.7;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;">
+                    <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/>
+                    <path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/>
+                    <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h2v-4h-2z"/>
+                </svg>
+                <p>Select an item to view sizes</p>
+            </div>
         `;
     }
 }
 
-function selectProductType(type, products) {
+function selectProductType(type, products, event) {
     selectedProductType = type;
 
-    // Update selected state
-    document.querySelectorAll('.item-selector-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    event.currentTarget.classList.add('selected');
+    // Update visual selection
+    const allCards = document.querySelectorAll('.item-selector-card');
+    allCards.forEach(card => card.classList.remove('selected'));
+
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('selected');
+    }
 
     // Render sizes in right panel
     renderSizesPanel(products);
