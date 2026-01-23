@@ -245,13 +245,16 @@
 
       <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
         <form id="add-note-form" style="display: flex; gap: 0.5rem; flex: 1;">
+          <input type="hidden" id="note-id">
+          <datalist id="product-names-list"></datalist>
           <input type="text" id="note-item-name" placeholder="Item Name (e.g. Steel Pipe 2\" )" class="input-field"
-            required>
+            list="product-names-list" required>
           <input type="number" step="0.01" id="note-min-price" placeholder="Min Price" class="input-field"
             style="width: 120px;" required>
           <input type="number" step="0.01" id="note-max-price" placeholder="Max Price" class="input-field"
             style="width: 120px;" required>
-          <button type="submit" class="btn btn-primary" style="width: auto; white-space: nowrap;">Add Note</button>
+          <button type="submit" id="add-note-btn" class="btn btn-primary" style="width: auto; white-space: nowrap;">Add
+            Note</button>
         </form>
       </div>
 

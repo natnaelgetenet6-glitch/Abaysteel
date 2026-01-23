@@ -53,9 +53,22 @@ async function fetchProducts() {
         renderShop();
         renderManagement();
         renderTypeSelector();
+        renderProductDatalist();
     } catch (err) {
         console.error('Error fetching products:', err);
     }
+}
+
+function renderProductDatalist() {
+    const datalist = document.getElementById('product-names-list');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    const uniqueNames = [...new Set(products.map(p => p.name))].sort();
+    uniqueNames.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        datalist.appendChild(opt);
+    });
 }
 
 async function fetchStats() {
@@ -620,7 +633,11 @@ function renderPriceNotes() {
             <td style="padding: 1rem;">$${Number(note.min_price).toFixed(2)}</td>
             <td style="padding: 1rem;">$${Number(note.max_price).toFixed(2)}</td>
             <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-secondary);">${new Date(note.updated_at).toLocaleString()}</td>
-            <td style="padding: 1rem;">
+            <td style="padding: 1rem; display: flex; gap: 0.5rem;">
+                <button onclick='editPriceNote(${JSON.stringify(note).replace(/'/g, "&#39;")})' 
+                    style="background:none; border:none; color:var(--primary-color); cursor:pointer;">
+                    Edit
+                </button>
                 <button onclick="deletePriceNote(${note.id})" 
                     style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
                     Delete
@@ -629,6 +646,20 @@ function renderPriceNotes() {
         `;
         notesTableBody.appendChild(tr);
     });
+}
+
+function editPriceNote(note) {
+    document.getElementById('note-id').value = note.id;
+    document.getElementById('note-item-name').value = note.item_name;
+    document.getElementById('note-min-price').value = note.min_price;
+    document.getElementById('note-max-price').value = note.max_price;
+
+    // Update button text
+    const btn = document.getElementById('add-note-btn');
+    if (btn) btn.textContent = 'Update Note';
+
+    // Scroll to form if needed
+    document.getElementById('add-note-form').scrollIntoView({ behavior: 'smooth' });
 }
 
 async function deletePriceNote(id) {
@@ -708,20 +739,33 @@ document.getElementById('expense-form').addEventListener('submit', async (e) => 
 
 document.getElementById('add-note-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const idInput = document.getElementById('note-id');
+    const id = idInput ? idInput.value : null;
     const itemName = document.getElementById('note-item-name').value;
     const minPrice = parseFloat(document.getElementById('note-min-price').value);
     const maxPrice = parseFloat(document.getElementById('note-max-price').value);
+
+    const payload = { item_name: itemName, min_price: minPrice, max_price: maxPrice };
+    if (id) {
+        payload.id = id;
+    }
 
     try {
         await fetch(`${API_URL}/price_notes.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ item_name: itemName, min_price: minPrice, max_price: maxPrice })
+            body: JSON.stringify(payload)
         });
+
         e.target.reset();
+        if (idInput) idInput.value = '';
+
+        const btn = document.getElementById('add-note-btn');
+        if (btn) btn.textContent = 'Add Note';
+
         await fetchPriceNotes();
     } catch (err) {
-        console.error('Error adding price note:', err);
+        console.error('Error saving price note:', err);
     }
 });
 
