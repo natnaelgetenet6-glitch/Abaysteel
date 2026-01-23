@@ -167,6 +167,8 @@ function getFilteredProducts(searchText, typeFilter, sizeFilter) {
 }
 
 // --- SHOP LOGIC ---
+let selectedProductType = null; // Track selected product type
+
 function renderShop() {
     shopList.innerHTML = '';
     const filtered = getFilteredProducts(shopSearch.value, shopTypeFilter.value, shopSizeFilter.value);
@@ -176,23 +178,109 @@ function renderShop() {
         return;
     }
 
+    // Create two-panel layout
+    const leftPanel = document.createElement('div');
+    leftPanel.className = 'items-panel';
+    leftPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">SELECT ITEM</h4>';
+
+    const rightPanel = document.createElement('div');
+    rightPanel.className = 'sizes-panel';
+    rightPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>';
+    rightPanel.id = 'sizes-panel-content';
+
+    // Group products by type to get unique items
+    const groupedByType = {};
     filtered.forEach(product => {
-        const el = document.createElement('div');
-        el.className = `product-card ${product.stock_quantity < 10 ? 'low-stock' : ''}`;
-        el.onclick = () => addToCart(product.id);
-        el.innerHTML = `
-            <div class="product-header">
-                <span class="product-name">${product.name}</span>
-                <span class="product-price">$${Number(product.sell_price).toFixed(2)}</span>
-            </div>
-            <div class="product-details">
-                <span>${product.type} &bull; ${product.dimensions}</span>
-                <span style="font-weight: 600; color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'var(--success-color)'}">
-                    Stock: ${product.stock_quantity} ${product.unit || 'pcs'}
-                </span>
+        const key = product.type;
+        if (!groupedByType[key]) {
+            groupedByType[key] = [];
+        }
+        groupedByType[key].push(product);
+    });
+
+    // Render items in left panel
+    Object.keys(groupedByType).sort().forEach(type => {
+        const itemCard = document.createElement('div');
+        itemCard.className = `item-selector-card ${selectedProductType === type ? 'selected' : ''}`;
+        itemCard.onclick = () => selectProductType(type, groupedByType[type]);
+
+        const products = groupedByType[type];
+        const totalStock = products.reduce((sum, p) => sum + p.stock_quantity, 0);
+        const sizeCount = products.length;
+
+        itemCard.innerHTML = `
+            <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;">${type}</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                ${sizeCount} size${sizeCount > 1 ? 's' : ''} • Stock: ${totalStock}
             </div>
         `;
-        shopList.appendChild(el);
+        leftPanel.appendChild(itemCard);
+    });
+
+    // Add panels to shop list
+    shopList.appendChild(leftPanel);
+    shopList.appendChild(rightPanel);
+
+    // If a type was previously selected, re-render its sizes
+    if (selectedProductType && groupedByType[selectedProductType]) {
+        renderSizesPanel(groupedByType[selectedProductType]);
+    } else {
+        document.getElementById('sizes-panel-content').innerHTML = `
+            <h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>
+            <p style="color: var(--text-secondary); text-align: center; margin-top: 3rem;">Select an item to view sizes</p>
+        `;
+    }
+}
+
+function selectProductType(type, products) {
+    selectedProductType = type;
+
+    // Update selected state
+    document.querySelectorAll('.item-selector-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+
+    // Render sizes in right panel
+    renderSizesPanel(products);
+}
+
+function renderSizesPanel(products) {
+    const sizesPanel = document.getElementById('sizes-panel-content');
+    sizesPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>';
+
+    // Group by size
+    const groupedBySize = {};
+    products.forEach(product => {
+        const size = product.dimensions;
+        if (!groupedBySize[size]) {
+            groupedBySize[size] = [];
+        }
+        groupedBySize[size].push(product);
+    });
+
+    // Render each size
+    Object.keys(groupedBySize).sort().forEach(size => {
+        const sizeProducts = groupedBySize[size];
+
+        sizeProducts.forEach(product => {
+            const el = document.createElement('div');
+            el.className = `product-card ${product.stock_quantity < 10 ? 'low-stock' : ''}`;
+            el.onclick = () => addToCart(product.id);
+            el.innerHTML = `
+                <div class="product-header">
+                    <span class="product-name">${product.name}</span>
+                    <span class="product-price">$${Number(product.sell_price).toFixed(2)}</span>
+                </div>
+                <div class="product-details">
+                    <span style="font-weight: 600; color: var(--text-accent);">Size: ${product.dimensions}</span>
+                    <span style="font-weight: 600; color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'var(--success-color)'}">
+                        Stock: ${product.stock_quantity} ${product.unit || 'pcs'}
+                    </span>
+                </div>
+            `;
+            sizesPanel.appendChild(el);
+        });
     });
 }
 
@@ -536,7 +624,7 @@ async function deletePriceNote(id) {
 // Event Listeners
 shopSearch.addEventListener('input', () => renderShop());
 shopTypeFilter.addEventListener('change', () => {
-    document.getElementById('shop-size-filter').value = '';
+    shopSizeFilter.value = '';
     renderSizeSelector();
     renderShop();
 });
