@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         
         // 1. Create Sale Record
-        $stmt = $pdo->prepare("INSERT INTO sales (total_amount, sell_type, user, buyer_name, buyer_phone, buyer_address) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO sales (total_amount, sell_type, processed_by, buyer_name, buyer_phone, buyer_address) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $input['total'],
             $input['sellType'],
