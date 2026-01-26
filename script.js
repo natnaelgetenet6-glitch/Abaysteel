@@ -687,6 +687,7 @@ document.getElementById('history-search').addEventListener('input', () => render
 
 document.getElementById('note-item-name').addEventListener('input', (e) => {
     const name = e.target.value;
+    if (!Array.isArray(priceNotes)) return;
     const existing = priceNotes.find(n => n.item_name === name);
     if (existing) {
         document.getElementById('note-id').value = existing.id;
