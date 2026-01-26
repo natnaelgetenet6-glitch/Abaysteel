@@ -656,7 +656,7 @@ function editPriceNote(note) {
 
     // Update button text
     const btn = document.getElementById('add-note-btn');
-    if (btn) btn.textContent = 'Update Note';
+    if (btn) btn.textContent = 'Update Rate';
 
     // Scroll to form if needed
     document.getElementById('add-note-form').scrollIntoView({ behavior: 'smooth' });
@@ -668,7 +668,7 @@ async function deletePriceNote(id) {
             await fetch(`${API_URL}/price_notes.php?id=${id}`, { method: 'DELETE' });
             await fetchPriceNotes();
         } catch (err) {
-            alert('Failed to delete price note');
+            alert('Failed to delete rate');
             console.error(err);
         }
     }
@@ -684,6 +684,24 @@ shopTypeFilter.addEventListener('change', () => {
 shopSizeFilter.addEventListener('change', () => renderShop());
 mgmtSearch.addEventListener('input', () => renderManagement());
 document.getElementById('history-search').addEventListener('input', () => renderHistory());
+
+document.getElementById('note-item-name').addEventListener('input', (e) => {
+    const name = e.target.value;
+    const existing = priceNotes.find(n => n.item_name === name);
+    if (existing) {
+        document.getElementById('note-id').value = existing.id;
+        document.getElementById('note-min-price').value = existing.min_price;
+        document.getElementById('note-max-price').value = existing.max_price;
+        const btn = document.getElementById('add-note-btn');
+        if (btn) btn.textContent = 'Update Rate';
+    } else {
+        document.getElementById('note-id').value = '';
+        // Don't clear min/max automatically if user is still typing, 
+        // but reset button if it's definitely not a match
+        const btn = document.getElementById('add-note-btn');
+        if (btn) btn.textContent = 'Add Rate';
+    }
+});
 
 document.getElementById('add-product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -761,7 +779,7 @@ document.getElementById('add-note-form').addEventListener('submit', async (e) =>
         if (idInput) idInput.value = '';
 
         const btn = document.getElementById('add-note-btn');
-        if (btn) btn.textContent = 'Add Note';
+        if (btn) btn.textContent = 'Add Rate';
 
         await fetchPriceNotes();
     } catch (err) {

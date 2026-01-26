@@ -36,28 +36,23 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
-    if (isset($input['id'])) {
-        // Update
-        $sql = "UPDATE price_notes SET item_name = ?, min_price = ?, max_price = ? WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $input['item_name'],
-            $input['min_price'],
-            $input['max_price'],
-            $input['id']
-        ]);
-    } else {
-        // Insert
-        $sql = "INSERT INTO price_notes (item_name, min_price, max_price) VALUES (?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $input['item_name'],
-            $input['min_price'],
-            $input['max_price']
-        ]);
-    }
+    // Use INSERT ... ON DUPLICATE KEY UPDATE for item_name
+    // This handles both new entries and updates by item_name (not just ID)
+    $sql = "INSERT INTO price_notes (item_name, min_price, max_price) 
+            VALUES (?, ?, ?) 
+            ON DUPLICATE KEY UPDATE 
+            min_price = VALUES(min_price), 
+            max_price = VALUES(max_price),
+            updated_at = CURRENT_TIMESTAMP";
     
-    echo json_encode(['id' => $pdo->lastInsertId() ?: $input['id'], 'success' => true]);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        $input['item_name'],
+        $input['min_price'],
+        $input['max_price']
+    ]);
+    
+    echo json_encode(['success' => true]);
     exit;
 }
 ?>

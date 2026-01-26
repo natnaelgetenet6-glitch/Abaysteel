@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `expenses` (
 -- 7. Price Notes Table
 CREATE TABLE IF NOT EXISTS `price_notes` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `item_name` VARCHAR(255) NOT NULL,
+    `item_name` VARCHAR(255) UNIQUE NOT NULL,
     `min_price` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     `max_price` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
