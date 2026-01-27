@@ -7,31 +7,6 @@ let cart = [];
 let currentUser = JSON.parse(localStorage.getItem('nat_current_user')) || null;
 const API_URL = 'api'; // Relative path for PHP
 
-function logToUI(msg, isError = false) {
-    console.log(`[LogToUI] ${msg}`);
-    const logSection = document.getElementById('ui-debug-log-content');
-    if (!logSection) {
-        const fallback = document.getElementById('ui-debug-log');
-        if (fallback) fallback.innerHTML += `<div>${msg}</div>`;
-        return;
-    }
-    const entry = document.createElement('div');
-    entry.style.color = isError ? '#ff4444' : '#00ff00';
-    entry.style.fontSize = '0.7rem';
-    entry.style.borderBottom = '1px solid #222';
-    entry.style.padding = '2px 0';
-    entry.textContent = `> ${new Date().toLocaleTimeString()}: ${msg}`;
-    logSection.prepend(entry);
-}
-
-// Global crash catcher
-window.onerror = function (msg, url, lineNo, columnNo, error) {
-    logToUI(`CRASH: ${msg} (at ${lineNo}:${columnNo})`, true);
-    return false;
-};
-
-window.logToUI = logToUI;
-
 
 // DOM Elements
 const shopList = document.getElementById('shop-list');
@@ -61,7 +36,6 @@ async function init() {
 }
 
 async function loadData() {
-    logToUI('Loading system data...');
     try {
         await Promise.all([
             fetchProducts(),
@@ -69,9 +43,8 @@ async function loadData() {
             fetchHistory(),
             fetchPriceNotes()
         ]);
-        logToUI('System data loaded successfully.');
     } catch (err) {
-        logToUI(`System Load Failed: ${err.message}`, true);
+        console.error('Error loading data:', err);
     }
 }
 
@@ -141,11 +114,10 @@ async function fetchHistory() {
 }
 
 async function fetchPriceNotes() {
-    logToUI('Fetching price notes...');
     try {
         const res = await fetch(`${API_URL}/price_notes.php`);
         if (!res.ok) {
-            logToUI(`Fetch failed: ${res.status}`, true);
+            console.error('Fetch failed:', res.status);
             priceNotes = [];
             renderPriceNotes();
             return;
@@ -155,16 +127,14 @@ async function fetchPriceNotes() {
 
         if (Array.isArray(data)) {
             priceNotes = data;
-            logToUI(`Loaded ${data.length} price notes`);
         } else {
-            logToUI('API Error: Data is not an array!', true);
+            console.error('Expected array from price_notes.php, got:', data);
             priceNotes = [];
-            if (data && data.error) logToUI(data.error, true);
         }
         renderPriceNotes();
     } catch (err) {
-        logToUI(`Fetch Error: ${err.message}`, true);
         console.error('Error fetching price notes:', err);
+        alert('DEBUG: Fetch Price Notes failed: ' + err.message);
     }
 }
 
@@ -174,7 +144,6 @@ function switchView(viewName) {
         alert('Access Denied: Admin privileges required.');
         return;
     }
-    logToUI(`Switching to view: ${viewName}`);
 
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -671,33 +640,32 @@ function renderHistory() {
 }
 
 function renderPriceNotes() {
-    logToUI('Rendering price notes table...');
-    const notesTableBody = document.getElementById('notes-table-body');
-    if (!notesTableBody) return;
-    notesTableBody.innerHTML = '';
+    try {
+        const notesTableBody = document.getElementById('notes-table-body');
+        if (!notesTableBody) return;
+        notesTableBody.innerHTML = '';
 
-    // Diagnostic heading update
-    const titleEl = document.querySelector('#view-notes h3');
-    if (titleEl) {
-        titleEl.textContent = `Item Rates (${priceNotes.length} items found)`;
-    }
+        // Diagnostic heading update
+        const titleEl = document.querySelector('#view-notes h3');
+        if (titleEl) {
+            titleEl.textContent = `Item Rates (${priceNotes.length} items found)`;
+        }
 
-    if (!Array.isArray(priceNotes) || priceNotes.length === 0) {
-        logToUI('No price notes to display');
-        notesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No price notes found</td></tr>';
-        return;
-    }
+        if (!Array.isArray(priceNotes) || priceNotes.length === 0) {
+            notesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No price notes found</td></tr>';
+            return;
+        }
 
-    priceNotes.forEach((note, index) => {
-        try {
-            const tr = document.createElement('tr');
-            tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        priceNotes.forEach((note, index) => {
+            try {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
 
-            const minPrice = note.min_price ? Number(note.min_price).toFixed(2) : '0.00';
-            const maxPrice = note.max_price ? Number(note.max_price).toFixed(2) : '0.00';
-            const updatedAt = note.updated_at ? new Date(note.updated_at).toLocaleString() : '---';
+                const minPrice = note.min_price ? Number(note.min_price).toFixed(2) : '0.00';
+                const maxPrice = note.max_price ? Number(note.max_price).toFixed(2) : '0.00';
+                const updatedAt = note.updated_at ? new Date(note.updated_at).toLocaleString() : '---';
 
-            tr.innerHTML = `
+                tr.innerHTML = `
                 <td style="padding: 1rem;">${note.item_name || 'Unnamed Item'}</td>
                 <td style="padding: 1rem;">$${minPrice}</td>
                 <td style="padding: 1rem;">$${maxPrice}</td>
@@ -713,11 +681,15 @@ function renderPriceNotes() {
                     </button>
                 </td>
             `;
-            notesTableBody.appendChild(tr);
-        } catch (err) {
-            console.error(`Error rendering note at index ${index}:`, err);
-        }
-    });
+                notesTableBody.appendChild(tr);
+            } catch (err) {
+                console.error(`Error rendering note at index ${index}:`, err);
+            }
+        });
+    } catch (err) {
+        console.error('Error in renderPriceNotes:', err);
+        alert('DEBUG: renderPriceNotes failed: ' + err.message);
+    }
 }
 
 function editPriceNote(note) {
@@ -939,6 +911,4 @@ function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 // Start
-logToUI('Nat Steel App Initializing...');
 init();
-logToUI('Ready.');
