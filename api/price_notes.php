@@ -36,23 +36,35 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
-    // Use INSERT ... ON DUPLICATE KEY UPDATE for item_name
-    // This handles both new entries and updates by item_name (not just ID)
-    $sql = "INSERT INTO price_notes (item_name, min_price, max_price) 
-            VALUES (?, ?, ?) 
-            ON DUPLICATE KEY UPDATE 
-            min_price = VALUES(min_price), 
-            max_price = VALUES(max_price),
-            updated_at = CURRENT_TIMESTAMP";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        $input['item_name'],
-        $input['min_price'],
-        $input['max_price']
-    ]);
-    
-    echo json_encode(['success' => true]);
+    // Basic Validation
+    if (empty($input['item_name']) || !isset($input['min_price']) || !isset($input['max_price'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'All fields (Item Name, Min Rate, Max Rate) are required.']);
+        exit;
+    }
+
+    try {
+        // Use INSERT ... ON DUPLICATE KEY UPDATE for item_name
+        // This handles both new entries and updates by item_name (not just ID)
+        $sql = "INSERT INTO price_notes (item_name, min_price, max_price) 
+                VALUES (?, ?, ?) 
+                ON DUPLICATE KEY UPDATE 
+                min_price = VALUES(min_price), 
+                max_price = VALUES(max_price),
+                updated_at = CURRENT_TIMESTAMP";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            $input['item_name'],
+            $input['min_price'],
+            $input['max_price']
+        ]);
+        
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    }
     exit;
 }
 ?>

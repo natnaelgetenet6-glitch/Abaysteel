@@ -761,8 +761,21 @@ document.getElementById('add-note-form').addEventListener('submit', async (e) =>
     const idInput = document.getElementById('note-id');
     const id = idInput ? idInput.value : null;
     const itemName = document.getElementById('note-item-name').value;
-    const minPrice = parseFloat(document.getElementById('note-min-price').value);
-    const maxPrice = parseFloat(document.getElementById('note-max-price').value);
+    const minPriceInput = document.getElementById('note-min-price').value;
+    const maxPriceInput = document.getElementById('note-max-price').value;
+
+    const minPrice = parseFloat(minPriceInput);
+    const maxPrice = parseFloat(maxPriceInput);
+
+    // Frontend Validation
+    if (!itemName) {
+        alert('Item Name is required');
+        return;
+    }
+    if (isNaN(minPrice) || isNaN(maxPrice)) {
+        alert('Please enter valid numbers for Min and Max Rates');
+        return;
+    }
 
     const payload = { item_name: itemName, min_price: minPrice, max_price: maxPrice };
     if (id) {
@@ -770,21 +783,29 @@ document.getElementById('add-note-form').addEventListener('submit', async (e) =>
     }
 
     try {
-        await fetch(`${API_URL}/price_notes.php`, {
+        const res = await fetch(`${API_URL}/price_notes.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        e.target.reset();
-        if (idInput) idInput.value = '';
+        const data = await res.json();
 
-        const btn = document.getElementById('add-note-btn');
-        if (btn) btn.textContent = 'Add Rate';
+        if (res.ok && data.success) {
+            alert('Rate ' + (id ? 'updated' : 'added') + ' successfully!');
+            e.target.reset();
+            if (idInput) idInput.value = '';
 
-        await fetchPriceNotes();
+            const btn = document.getElementById('add-note-btn');
+            if (btn) btn.textContent = 'Add Rate';
+
+            await fetchPriceNotes();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to save rate'));
+        }
     } catch (err) {
         console.error('Error saving price note:', err);
+        alert('Failed to connect to the server. Please try again.');
     }
 });
 
