@@ -26,6 +26,17 @@
         style="margin-left: auto; color: var(--danger-color); border-color: var(--danger-color);">Logout</button>
     </nav>
 
+    <!-- Global Diagnostic Log -->
+    <div id="ui-debug-log" class="glass-panel"
+      style="margin: 1rem 0; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: monospace; border-color: rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); display: block;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="color:var(--text-secondary); font-size: 0.65rem; text-transform: uppercase;">System Diagnostic
+          Log</span>
+        <button onclick="document.getElementById('ui-debug-log').innerHTML=''"
+          style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:0.65rem;">Clear</button>
+      </div>
+    </div>
+
     <!-- VIEW: LOGIN -->
     <div id="view-login" class="view-section active">
       <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 2rem; text-align: center;">
@@ -247,14 +258,6 @@
               </svg>
             </button>
           </div>
-        </div>
-
-        <!-- On-screen Diagnostic Log -->
-        <div id="ui-debug-log" class="glass-panel"
-          style="padding: 0.5rem; margin-bottom: 1rem; max-height: 100px; overflow-y: auto; font-family: monospace; border-color: rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
-          <div
-            style="color:var(--text-secondary); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.25rem;">
-            Diagnostic Log</div>
         </div>
 
         <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">

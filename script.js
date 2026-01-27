@@ -8,16 +8,29 @@ let currentUser = JSON.parse(localStorage.getItem('nat_current_user')) || null;
 const API_URL = 'api'; // Relative path for PHP
 
 function logToUI(msg, isError = false) {
+    console.log(`[LogToUI] ${msg}`);
     const logSection = document.getElementById('ui-debug-log');
-    if (!logSection) return;
+    if (!logSection) {
+        console.warn('logSection #ui-debug-log not found!');
+        return;
+    }
     const entry = document.createElement('div');
     entry.style.color = isError ? 'var(--danger-color)' : 'var(--text-accent)';
     entry.style.fontSize = '0.75rem';
     entry.style.marginBottom = '0.2rem';
+    entry.style.borderLeft = isError ? '2px solid var(--danger-color)' : '2px solid var(--text-accent)';
+    entry.style.paddingLeft = '4px';
     entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
     logSection.prepend(entry);
-    console.log(msg);
 }
+
+// Global crash catcher
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+    logToUI(`CRASH: ${msg} (at ${lineNo}:${columnNo})`, true);
+    return false;
+};
+
+window.logToUI = logToUI;
 
 
 // DOM Elements
@@ -48,12 +61,18 @@ async function init() {
 }
 
 async function loadData() {
-    await Promise.all([
-        fetchProducts(),
-        fetchStats(),
-        fetchHistory(),
-        fetchPriceNotes()
-    ]);
+    logToUI('Loading system data...');
+    try {
+        await Promise.all([
+            fetchProducts(),
+            fetchStats(),
+            fetchHistory(),
+            fetchPriceNotes()
+        ]);
+        logToUI('System data loaded successfully.');
+    } catch (err) {
+        logToUI(`System Load Failed: ${err.message}`, true);
+    }
 }
 
 // --- API Calls ---
@@ -155,6 +174,7 @@ function switchView(viewName) {
         alert('Access Denied: Admin privileges required.');
         return;
     }
+    logToUI(`Switching to view: ${viewName}`);
 
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -173,7 +193,12 @@ function switchView(viewName) {
 
     updateNavVisibility();
 
-    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.textContent.toLowerCase().includes(viewName));
+    // More robust button finding
+    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => {
+        const text = b.textContent.toLowerCase();
+        const id = b.id.toLowerCase();
+        return text.includes(viewName) || id.includes(viewName);
+    });
     if (btn) btn.classList.add('active');
 
     // Refresh data on view switch if needed
@@ -914,4 +939,6 @@ function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
 // Start
-init(); 
+logToUI('Nat Steel App Initializing...');
+init();
+logToUI('Ready.');
