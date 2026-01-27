@@ -18,7 +18,10 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     // SELF-HEALING: Add shop_quantity if missing
-    $pdo->exec("ALTER TABLE products ADD COLUMN IF NOT EXISTS shop_quantity INT NOT NULL DEFAULT 0 AFTER stock_quantity");
+    $check = $pdo->query("SHOW COLUMNS FROM products LIKE 'shop_quantity'")->fetch();
+    if (!$check) {
+        $pdo->exec("ALTER TABLE products ADD COLUMN shop_quantity INT NOT NULL DEFAULT 0 AFTER stock_quantity");
+    }
 
 } catch (\PDOException $e) {
     // Return JSON error response if connection fails
