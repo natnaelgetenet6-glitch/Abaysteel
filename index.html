@@ -135,11 +135,11 @@
                 <thead>
                   <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
                     <th style="padding: 0.5rem;">Product</th>
-                    <th style="padding: 0.5rem;">Type</th>
-                    <th style="padding: 0.5rem;">Dimensions</th>
-                    <th style="padding: 0.5rem;">Buy Price</th>
-                    <th style="padding: 0.5rem;">Sell Price</th>
-                    <th style="padding: 0.5rem;">Stock</th>
+                    <th style="padding: 0.5rem;">Type/Dim</th>
+                    <th style="padding: 0.5rem;">Buy/Sell</th>
+                    <th style="padding: 0.5rem;">Main Store</th>
+                    <th style="padding: 0.5rem;">Shop Stock</th>
+                    <th style="padding: 0.5rem;">Transfer</th>
                     <th style="padding: 0.5rem;">Action</th>
                   </tr>
                 </thead>
@@ -300,6 +300,28 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal: Transfer Stock -->
+    <div class="modal" id="transfer-modal">
+      <div class="glass-panel" style="width: 350px; padding: 2rem; background: #0f172a;">
+        <h2 style="margin-bottom: 1rem;">Transfer to Shop</h2>
+        <p id="transfer-item-name" style="color: var(--text-accent); margin-bottom: 1.5rem; font-weight: 600;"></p>
+        <form id="transfer-form">
+          <input type="hidden" id="transfer-product-id">
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Quantity to move</label>
+            <input type="number" id="transfer-qty" class="input-field" min="1" required>
+          </div>
+          <p id="transfer-max-hint" style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+          </p>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="button" class="btn" style="background: var(--bg-hover);"
+              onclick="closeModal('transfer-modal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Complete Transfer</button>
+          </div>
+        </form>
       </div>
     </div>
 

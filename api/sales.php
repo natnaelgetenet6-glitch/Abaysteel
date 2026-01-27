@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // 2. Insert Items and Update Stock
         $itemStmt = $pdo->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, subtotal) VALUES (?, ?, ?, ?, ?)");
-        $stockStmt = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?");
+        $stockStmt = $pdo->prepare("UPDATE products SET shop_quantity = shop_quantity - ? WHERE id = ?");
         
         foreach ($input['items'] as $item) {
             $subtotal = $item['product']['sellPrice'] * $item['qty'];

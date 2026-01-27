@@ -254,13 +254,13 @@ function renderShop() {
         itemCard.onclick = (e) => selectProductType(type, groupedByType[type], e);
 
         const products = groupedByType[type];
-        const totalStock = products.reduce((sum, p) => sum + p.stock_quantity, 0);
+        const totalShopStock = products.reduce((sum, p) => sum + (p.shop_quantity || 0), 0);
         const sizeCount = products.length;
 
         itemCard.innerHTML = `
             <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;">${type}</div>
             <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                ${sizeCount} size${sizeCount > 1 ? 's' : ''} • Stock: ${totalStock}
+                ${sizeCount} size${sizeCount > 1 ? 's' : ''} • Shop Stock: ${totalShopStock}
             </div>
         `;
         leftPanel.appendChild(itemCard);
@@ -323,7 +323,7 @@ function renderSizesPanel(products) {
 
         sizeProducts.forEach(product => {
             const el = document.createElement('div');
-            el.className = `product-card ${product.stock_quantity < 10 ? 'low-stock' : ''}`;
+            el.className = `product-card ${(product.shop_quantity || 0) < 5 ? 'low-stock' : ''}`;
             el.onclick = () => addToCart(product.id);
             el.innerHTML = `
                 <div class="product-header">
@@ -332,8 +332,8 @@ function renderSizesPanel(products) {
                 </div>
                 <div class="product-details">
                     <span style="font-weight: 600; color: var(--text-accent);">Size: ${product.dimensions}</span>
-                    <span style="font-weight: 600; color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'var(--success-color)'}">
-                        Stock: ${product.stock_quantity} ${product.unit || 'pcs'}
+                    <span style="font-weight: 600; color: ${(product.shop_quantity || 0) < 5 ? 'var(--danger-color)' : 'var(--success-color)'}">
+                        Shop Stock: ${product.shop_quantity || 0} ${product.unit || 'pcs'}
                     </span>
                 </div>
             `;
@@ -389,11 +389,16 @@ function renderManagement() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${product.name}</td>
-            <td>${product.type}</td>
-            <td>${product.dimensions}</td>
-            <td>$${Number(product.buy_price).toFixed(2)}</td>
-            <td>$${Number(product.sell_price).toFixed(2)}</td>
+            <td><span style="font-size:0.8rem; opacity:0.7;">${product.type} / ${product.dimensions}</span></td>
+            <td>B:$${Number(product.buy_price).toFixed(2)} / S:$${Number(product.sell_price).toFixed(2)}</td>
             <td style="color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'inherit'}">${product.stock_quantity}</td>
+            <td style="color: var(--text-accent); font-weight: 600;">${product.shop_quantity || 0}</td>
+            <td>
+                <button onclick="openTransferModal(${product.id})" 
+                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
+                    Move to Shop
+                </button>
+            </td>
             <td>
                 <button onclick="deleteProduct(${product.id})" 
                     style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
@@ -417,20 +422,33 @@ async function deleteProduct(id) {
     }
 }
 
+function openTransferModal(id) {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    document.getElementById('transfer-product-id').value = id;
+    document.getElementById('transfer-item-name').textContent = `${product.name} (${product.dimensions})`;
+    document.getElementById('transfer-qty').value = '';
+    document.getElementById('transfer-max-hint').textContent = `Max available in store: ${product.stock_quantity}`;
+    document.getElementById('transfer-qty').max = product.stock_quantity;
+
+    openModal('transfer-modal');
+}
+
 // Cart Logic
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
-    if (product.stock_quantity <= 0) {
-        alert('Out of Stock!');
+    if (!product || (product.shop_quantity || 0) <= 0) {
+        alert('Out of Stock in Shop!');
         return;
     }
 
     const cartItem = cart.find(c => c.product.id === productId);
     if (cartItem) {
-        if (cartItem.qty < product.stock_quantity) {
+        if (cartItem.qty < (product.shop_quantity || 0)) {
             cartItem.qty++;
         } else {
-            alert('Not enough stock!');
+            alert('Not enough shop stock!');
         }
     } else {
         cart.push({ product: product, qty: 1 });
@@ -798,6 +816,32 @@ document.getElementById('expense-form').addEventListener('submit', async (e) => 
     }
 });
 
+document.getElementById('transfer-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const productId = document.getElementById('transfer-product-id').value;
+    const quantity = document.getElementById('transfer-qty').value;
+
+    try {
+        const res = await fetch(`${API_URL}/transfer.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, quantity })
+        });
+
+        if (res.ok) {
+            closeModal('transfer-modal');
+            alert('Transfer completed successfully!');
+            await fetchProducts();
+        } else {
+            const err = await res.json();
+            alert('Transfer failed: ' + err.error);
+        }
+    } catch (err) {
+        console.error('Error during transfer:', err);
+        alert('Transfer failed: Network Error');
+    }
+});
+
 document.getElementById('add-note-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const idInput = document.getElementById('note-id');
@@ -903,6 +947,7 @@ window.deleteProduct = deleteProduct;
 window.deletePriceNote = deletePriceNote;
 window.logout = logout;
 window.renderHistory = renderHistory;
+window.openTransferModal = openTransferModal;
 
 // Simple Modals
 function openModal(id) { document.getElementById(id).classList.add('active'); }
