@@ -12,6 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// SELF-HEALING: Create table if missing
+try {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS price_notes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        item_name VARCHAR(255) NOT NULL UNIQUE,
+        min_price DECIMAL(10,2) NOT NULL,
+        max_price DECIMAL(10,2) NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+} catch (Exception $e) {
+    // Standard error reporting will catch issues in subsequent queries if this fails
+}
+
 // Handle DELETE requests (URL like /api/price_notes.php?id=123)
 if ($method === 'DELETE') {
     $id = $_GET['id'] ?? null;
