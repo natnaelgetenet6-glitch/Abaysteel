@@ -240,6 +240,21 @@
         style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3>Item Rates (Min/Max Avg)</h3>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-icon" onclick="fetchPriceNotes()" title="Refresh Rates">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- On-screen Diagnostic Log -->
+        <div id="ui-debug-log" class="glass-panel"
+          style="padding: 0.5rem; margin-bottom: 1rem; max-height: 100px; overflow-y: auto; font-family: monospace; border-color: rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+          <div
+            style="color:var(--text-secondary); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.25rem;">
+            Diagnostic Log</div>
         </div>
 
         <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">

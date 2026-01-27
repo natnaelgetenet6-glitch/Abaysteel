@@ -7,6 +7,18 @@ let cart = [];
 let currentUser = JSON.parse(localStorage.getItem('nat_current_user')) || null;
 const API_URL = 'api'; // Relative path for PHP
 
+function logToUI(msg, isError = false) {
+    const logSection = document.getElementById('ui-debug-log');
+    if (!logSection) return;
+    const entry = document.createElement('div');
+    entry.style.color = isError ? 'var(--danger-color)' : 'var(--text-accent)';
+    entry.style.fontSize = '0.75rem';
+    entry.style.marginBottom = '0.2rem';
+    entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    logSection.prepend(entry);
+    console.log(msg);
+}
+
 
 // DOM Elements
 const shopList = document.getElementById('shop-list');
@@ -110,10 +122,11 @@ async function fetchHistory() {
 }
 
 async function fetchPriceNotes() {
+    logToUI('Fetching price notes...');
     try {
         const res = await fetch(`${API_URL}/price_notes.php`);
         if (!res.ok) {
-            console.error('Fetch failed:', res.status);
+            logToUI(`Fetch failed: ${res.status}`, true);
             priceNotes = [];
             renderPriceNotes();
             return;
@@ -123,15 +136,15 @@ async function fetchPriceNotes() {
 
         if (Array.isArray(data)) {
             priceNotes = data;
+            logToUI(`Loaded ${data.length} price notes`);
         } else {
-            console.error('Expected array from price_notes.php, got:', data);
+            logToUI('API Error: Data is not an array!', true);
             priceNotes = [];
-            if (data && data.error) {
-                console.error('API Error:', data.error);
-            }
+            if (data && data.error) logToUI(data.error, true);
         }
         renderPriceNotes();
     } catch (err) {
+        logToUI(`Fetch Error: ${err.message}`, true);
         console.error('Error fetching price notes:', err);
     }
 }
@@ -633,6 +646,7 @@ function renderHistory() {
 }
 
 function renderPriceNotes() {
+    logToUI('Rendering price notes table...');
     const notesTableBody = document.getElementById('notes-table-body');
     if (!notesTableBody) return;
     notesTableBody.innerHTML = '';
@@ -644,6 +658,7 @@ function renderPriceNotes() {
     }
 
     if (!Array.isArray(priceNotes) || priceNotes.length === 0) {
+        logToUI('No price notes to display');
         notesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No price notes found</td></tr>';
         return;
     }
