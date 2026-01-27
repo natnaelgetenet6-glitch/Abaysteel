@@ -112,7 +112,24 @@ async function fetchHistory() {
 async function fetchPriceNotes() {
     try {
         const res = await fetch(`${API_URL}/price_notes.php`);
-        priceNotes = await res.json();
+        if (!res.ok) {
+            console.error('Fetch failed:', res.status);
+            priceNotes = [];
+            renderPriceNotes();
+            return;
+        }
+
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+            priceNotes = data;
+        } else {
+            console.error('Expected array from price_notes.php, got:', data);
+            priceNotes = [];
+            if (data && data.error) {
+                console.error('API Error:', data.error);
+            }
+        }
         renderPriceNotes();
     } catch (err) {
         console.error('Error fetching price notes:', err);
@@ -620,7 +637,9 @@ function renderPriceNotes() {
     if (!notesTableBody) return;
     notesTableBody.innerHTML = '';
 
-    if (priceNotes.length === 0) {
+    console.log('Rendering Price Notes:', priceNotes);
+
+    if (!Array.isArray(priceNotes) || priceNotes.length === 0) {
         notesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No price notes found</td></tr>';
         return;
     }

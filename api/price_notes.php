@@ -28,8 +28,13 @@ if ($method === 'DELETE') {
 }
 
 if ($method === 'GET') {
-    $stmt = $pdo->query("SELECT * FROM price_notes ORDER BY item_name");
-    echo json_encode($stmt->fetchAll());
+    try {
+        $stmt = $pdo->query("SELECT * FROM price_notes ORDER BY item_name");
+        echo json_encode($stmt->fetchAll());
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    }
     exit;
 }
 
