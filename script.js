@@ -774,18 +774,37 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
     const sellPrice = parseFloat(document.getElementById('new-sell-price').value);
 
     // Support comma-separated dimensions for bulk add
-    const dimensions = dimInput.split(',').map(d => d.trim()).filter(d => d);
+    let dimensions = dimInput.split(',').map(d => d.trim()).filter(d => d);
+    if (dimensions.length === 0) dimensions = ['']; // Allow adding even without dimensions
 
     try {
+        let successCount = 0;
+        let lastError = null;
+
         // Post each dimension as a separate product
         for (const dim of dimensions) {
-            await fetch(`${API_URL}/products.php`, {
+            const res = await fetch(`${API_URL}/products.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name, type, dimensions: dim, quantity: qty, buyPrice, sellPrice
                 })
             });
+
+            if (res.ok) {
+                successCount++;
+            } else {
+                const errData = await res.json();
+                lastError = errData.error || 'Unknown error';
+            }
+        }
+
+        if (successCount === dimensions.length) {
+            alert('Product(s) added successfully!');
+        } else if (successCount > 0) {
+            alert(`Added ${successCount} items, but some failed: ${lastError}`);
+        } else {
+            alert(`Failed to add product: ${lastError}`);
         }
 
         closeModal('add-product-modal');
@@ -794,7 +813,7 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
 
     } catch (err) {
         console.error('Error adding product:', err);
-        alert('Error adding product');
+        alert('Error adding product: Network Error');
     }
 });
 
