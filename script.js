@@ -637,33 +637,46 @@ function renderPriceNotes() {
     if (!notesTableBody) return;
     notesTableBody.innerHTML = '';
 
-    console.log('Rendering Price Notes:', priceNotes);
+    // Diagnostic heading update
+    const titleEl = document.querySelector('#view-notes h3');
+    if (titleEl) {
+        titleEl.textContent = `Item Rates (${priceNotes.length} items found)`;
+    }
 
     if (!Array.isArray(priceNotes) || priceNotes.length === 0) {
         notesTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No price notes found</td></tr>';
         return;
     }
 
-    priceNotes.forEach(note => {
-        const tr = document.createElement('tr');
-        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-        tr.innerHTML = `
-            <td style="padding: 1rem;">${note.item_name}</td>
-            <td style="padding: 1rem;">$${Number(note.min_price).toFixed(2)}</td>
-            <td style="padding: 1rem;">$${Number(note.max_price).toFixed(2)}</td>
-            <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-secondary);">${new Date(note.updated_at).toLocaleString()}</td>
-            <td style="padding: 1rem; display: flex; gap: 0.5rem;">
-                <button onclick='editPriceNote(${JSON.stringify(note).replace(/'/g, "&#39;")})' 
-                    style="background:none; border:none; color:var(--primary-color); cursor:pointer;">
-                    Edit
-                </button>
-                <button onclick="deletePriceNote(${note.id})" 
-                    style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
-                    Delete
-                </button>
-            </td>
-        `;
-        notesTableBody.appendChild(tr);
+    priceNotes.forEach((note, index) => {
+        try {
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+
+            const minPrice = note.min_price ? Number(note.min_price).toFixed(2) : '0.00';
+            const maxPrice = note.max_price ? Number(note.max_price).toFixed(2) : '0.00';
+            const updatedAt = note.updated_at ? new Date(note.updated_at).toLocaleString() : '---';
+
+            tr.innerHTML = `
+                <td style="padding: 1rem;">${note.item_name || 'Unnamed Item'}</td>
+                <td style="padding: 1rem;">$${minPrice}</td>
+                <td style="padding: 1rem;">$${maxPrice}</td>
+                <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-secondary);">${updatedAt}</td>
+                <td style="padding: 1rem; display: flex; gap: 0.5rem;">
+                    <button onclick='editPriceNote(${JSON.stringify(note).replace(/'/g, "&#39;")})' 
+                        style="background:none; border:none; color:var(--primary-color); cursor:pointer;">
+                        Edit
+                    </button>
+                    <button onclick="deletePriceNote(${note.id})" 
+                        style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
+                        Delete
+                    </button>
+                </td>
+            `;
+            notesTableBody.appendChild(tr);
+        } catch (err) {
+            console.error(`Error rendering note at index ${index}:`, err);
+        }
     });
 }
 
