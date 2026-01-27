@@ -134,7 +134,6 @@ async function fetchPriceNotes() {
         renderPriceNotes();
     } catch (err) {
         console.error('Error fetching price notes:', err);
-        alert('DEBUG: Fetch Price Notes failed: ' + err.message);
     }
 }
 
@@ -688,7 +687,6 @@ function renderPriceNotes() {
         });
     } catch (err) {
         console.error('Error in renderPriceNotes:', err);
-        alert('DEBUG: renderPriceNotes failed: ' + err.message);
     }
 }
 
