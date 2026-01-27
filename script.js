@@ -9,18 +9,18 @@ const API_URL = 'api'; // Relative path for PHP
 
 function logToUI(msg, isError = false) {
     console.log(`[LogToUI] ${msg}`);
-    const logSection = document.getElementById('ui-debug-log');
+    const logSection = document.getElementById('ui-debug-log-content');
     if (!logSection) {
-        console.warn('logSection #ui-debug-log not found!');
+        const fallback = document.getElementById('ui-debug-log');
+        if (fallback) fallback.innerHTML += `<div>${msg}</div>`;
         return;
     }
     const entry = document.createElement('div');
-    entry.style.color = isError ? 'var(--danger-color)' : 'var(--text-accent)';
-    entry.style.fontSize = '0.75rem';
-    entry.style.marginBottom = '0.2rem';
-    entry.style.borderLeft = isError ? '2px solid var(--danger-color)' : '2px solid var(--text-accent)';
-    entry.style.paddingLeft = '4px';
-    entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    entry.style.color = isError ? '#ff4444' : '#00ff00';
+    entry.style.fontSize = '0.7rem';
+    entry.style.borderBottom = '1px solid #222';
+    entry.style.padding = '2px 0';
+    entry.textContent = `> ${new Date().toLocaleTimeString()}: ${msg}`;
     logSection.prepend(entry);
 }
 

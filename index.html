@@ -15,27 +15,36 @@
 
 <body>
   <div id="app">
+    <!-- Global Diagnostic Log (High Visibility) -->
+    <div id="ui-debug-log"
+      style="display: block !important; margin: 0.5rem; padding: 0.5rem; max-height: 150px; overflow-y: auto; font-family: monospace; border: 3px solid #ff0000; background: #000; color: #fff; z-index: 9999; position: relative;">
+      <div
+        style="display: flex; justify-content: space-between; border-bottom: 1px solid #444; margin-bottom: 5px; padding-bottom: 2px;">
+        <b style="color:#ff0000; font-size: 0.8rem;">--- SYSTEM DIAGNOSTIC ACTIVE ---</b>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="fetchPriceNotes()"
+            style="background:#ff0000; color:white; border:none; padding: 3px 8px; cursor:pointer; font-weight:bold;">RETRY
+            FETCH</button>
+          <button onclick="document.getElementById('ui-debug-log-content').innerHTML=''"
+            style="background:#555; color:white; border:none; padding: 3px 8px; cursor:pointer;">CLEAR</button>
+        </div>
+      </div>
+      <div id="ui-debug-log-content"></div>
+    </div>
+
     <!-- Navigation -->
     <nav id="main-nav" class="glass-panel"
-      style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; padding: 0.75rem; display: none;">
+      style="margin-top: 0.5rem; display: flex; justify-content: center; gap: 1rem; padding: 0.75rem; display: none;">
       <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">Shop (POS)</button>
       <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
       <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
       <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
       <button class="nav-btn" onclick="logout()"
         style="margin-left: auto; color: var(--danger-color); border-color: var(--danger-color);">Logout</button>
+      <div id="runtime-status"
+        style="position:fixed; top:5px; right:5px; font-size: 0.6rem; color:#00ff00; opacity:0.3; pointer-events: none;">
+        LIVE</div>
     </nav>
-
-    <!-- Global Diagnostic Log -->
-    <div id="ui-debug-log" class="glass-panel"
-      style="margin: 1rem 0; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: monospace; border-color: rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); display: block;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <span style="color:var(--text-secondary); font-size: 0.65rem; text-transform: uppercase;">System Diagnostic
-          Log</span>
-        <button onclick="document.getElementById('ui-debug-log').innerHTML=''"
-          style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:0.65rem;">Clear</button>
-      </div>
-    </div>
 
     <!-- VIEW: LOGIN -->
     <div id="view-login" class="view-section active">
