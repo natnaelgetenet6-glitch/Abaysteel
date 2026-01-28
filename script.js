@@ -4,6 +4,7 @@ let sales = [];
 let expenses = [];
 let priceNotes = [];
 let cart = [];
+let users = [];
 let currentUser = JSON.parse(localStorage.getItem('nat_current_user')) || null;
 const API_URL = 'api'; // Relative path for PHP
 
@@ -41,7 +42,8 @@ async function loadData() {
             fetchProducts(),
             fetchStats(),
             fetchHistory(),
-            fetchPriceNotes()
+            fetchPriceNotes(),
+            fetchUsers()
         ]);
     } catch (err) {
         console.error('Error loading data:', err);
@@ -137,9 +139,20 @@ async function fetchPriceNotes() {
     }
 }
 
+async function fetchUsers() {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    try {
+        const res = await fetch(`${API_URL}/users.php`);
+        users = await res.json();
+        renderUsers();
+    } catch (err) {
+        console.error('Error fetching users:', err);
+    }
+}
+
 // View Switching
 function switchView(viewName) {
-    if (currentUser && currentUser.role === 'shop' && (viewName === 'management' || viewName === 'history' || viewName === 'notes')) {
+    if (currentUser && currentUser.role === 'shop' && (viewName === 'management' || viewName === 'history' || viewName === 'notes' || viewName === 'users')) {
         alert('Access Denied: Admin privileges required.');
         return;
     }
@@ -173,6 +186,7 @@ function switchView(viewName) {
     if (viewName === 'shop' || viewName === 'management') fetchProducts();
     if (viewName === 'history') fetchHistory();
     if (viewName === 'notes') fetchPriceNotes();
+    if (viewName === 'users') fetchUsers();
 }
 
 function updateNavVisibility() {
@@ -180,14 +194,17 @@ function updateNavVisibility() {
     const mgmtBtn = document.getElementById('nav-mgmt');
     const historyBtn = document.getElementById('nav-history');
     const notesBtn = document.getElementById('nav-notes');
+    const usersBtn = document.getElementById('nav-users');
     if (currentUser.role === 'shop') {
         if (mgmtBtn) mgmtBtn.style.display = 'none';
         if (historyBtn) historyBtn.style.display = 'none';
         if (notesBtn) notesBtn.style.display = 'none';
+        if (usersBtn) usersBtn.style.display = 'none';
     } else {
         if (mgmtBtn) mgmtBtn.style.display = 'block';
         if (historyBtn) historyBtn.style.display = 'block';
         if (notesBtn) notesBtn.style.display = 'block';
+        if (usersBtn) usersBtn.style.display = 'block';
     }
 }
 
@@ -734,6 +751,65 @@ async function deletePriceNote(id) {
     }
 }
 
+function renderUsers() {
+    const usersTableBody = document.getElementById('users-table-body');
+    if (!usersTableBody) return;
+    usersTableBody.innerHTML = '';
+
+    if (!Array.isArray(users) || users.length === 0) {
+        usersTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No users found</td></tr>';
+        return;
+    }
+
+    users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+
+        tr.innerHTML = `
+            <td style="padding: 1rem;">${user.username}</td>
+            <td style="padding: 1rem;">${user.role}</td>
+            <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-secondary);">${new Date(user.created_at).toLocaleString()}</td>
+            <td style="padding: 1rem; display: flex; gap: 0.5rem;">
+                <button onclick='editUser(${JSON.stringify(user)})' 
+                    style="background:none; border:none; color:var(--primary-color); cursor:pointer;">
+                    Edit
+                </button>
+                <button onclick="deleteUser(${user.id})" 
+                    style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
+                    Delete
+                </button>
+            </td>
+        `;
+        usersTableBody.appendChild(tr);
+    });
+}
+
+function editUser(user) {
+    document.getElementById('manage-user-id').value = user.id;
+    document.getElementById('manage-user-username').value = user.username;
+    document.getElementById('manage-user-role').value = user.role;
+    document.getElementById('manage-user-password').value = '';
+    document.getElementById('save-user-btn').textContent = 'Update User';
+    document.getElementById('cancel-user-edit').classList.remove('hidden');
+}
+
+async function deleteUser(id) {
+    if (confirm('Delete this user?')) {
+        try {
+            const res = await fetch(`${API_URL}/users.php?id=${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                alert('User deleted successfully');
+                await fetchUsers();
+            } else {
+                alert('Failed to delete user');
+            }
+        } catch (err) {
+            alert('Failed to delete user');
+            console.error(err);
+        }
+    }
+}
+
 // Event Listeners
 shopSearch.addEventListener('input', () => renderShop());
 shopTypeFilter.addEventListener('change', () => {
@@ -914,6 +990,53 @@ document.getElementById('add-note-form').addEventListener('submit', async (e) =>
     }
 });
 
+document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('manage-user-id').value;
+    const username = document.getElementById('manage-user-username').value;
+    const password = document.getElementById('manage-user-password').value;
+    const role = document.getElementById('manage-user-role').value;
+
+    if (!id && !password) {
+        alert('Password is required for new users');
+        return;
+    }
+
+    const payload = { username, role };
+    if (id) payload.id = id;
+    if (password) payload.password = password;
+
+    try {
+        const res = await fetch(`${API_URL}/users.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+            alert('User ' + (id ? 'updated' : 'added') + ' successfully');
+            e.target.reset();
+            document.getElementById('manage-user-id').value = '';
+            document.getElementById('save-user-btn').textContent = 'Add User';
+            document.getElementById('cancel-user-edit').classList.add('hidden');
+            await fetchUsers();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to save user'));
+        }
+    } catch (err) {
+        console.error('Error saving user:', err);
+        alert('Failed to connect to the server');
+    }
+});
+
+document.getElementById('cancel-user-edit').addEventListener('click', () => {
+    document.getElementById('add-user-form').reset();
+    document.getElementById('manage-user-id').value = '';
+    document.getElementById('save-user-btn').textContent = 'Add User';
+    document.getElementById('cancel-user-edit').classList.add('hidden');
+});
+
 // Login Logic
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -964,6 +1087,8 @@ window.removeFromCart = removeFromCart;
 window.completeSale = completeSale;
 window.deleteProduct = deleteProduct;
 window.deletePriceNote = deletePriceNote;
+window.deleteUser = deleteUser;
+window.editUser = editUser;
 window.logout = logout;
 window.renderHistory = renderHistory;
 window.openTransferModal = openTransferModal;

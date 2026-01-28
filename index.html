@@ -23,6 +23,7 @@
       <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
       <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
       <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
+      <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
       <button class="nav-btn" onclick="logout()"
         style="margin-left: auto; color: var(--danger-color); border-color: var(--danger-color);">Logout</button>
     </nav>
@@ -297,6 +298,65 @@
             </thead>
             <tbody id="notes-table-body">
               <!-- notes injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: USERS -->
+    <div id="view-users" class="view-section hidden">
+      <div class="glass-panel"
+        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>User Management</h3>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+          <form id="add-user-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; flex: 1;">
+            <input type="hidden" id="manage-user-id">
+
+            <div style="flex: 2; min-width: 150px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Username</label>
+              <input type="text" id="manage-user-username" placeholder="Username" class="input-field" required>
+            </div>
+
+            <div style="flex: 2; min-width: 150px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Password</label>
+              <input type="password" id="manage-user-password" placeholder="Leave blank to keep same"
+                class="input-field">
+            </div>
+
+            <div style="width: 140px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Role</label>
+              <select id="manage-user-role" class="input-field" required>
+                <option value="shop">Shop</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <button type="submit" id="save-user-btn" class="btn btn-primary"
+              style="width: auto; padding: 0.75rem 2rem;">Add User</button>
+            <button type="button" id="cancel-user-edit" class="btn hidden"
+              style="width: auto; padding: 0.75rem 2rem; background: var(--bg-hover);">Cancel</button>
+          </form>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto;">
+          <table style="width: 100%; border-collapse: collapse; color: var(--text-primary);">
+            <thead style="position: sticky; top: 0; background: var(--bg-dark); z-index: 10;">
+              <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+                <th style="padding: 1rem;">Username</th>
+                <th style="padding: 1rem;">Role</th>
+                <th style="padding: 1rem;">Created At</th>
+                <th style="padding: 1rem;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <!-- users injected by JS -->
             </tbody>
           </table>
         </div>
