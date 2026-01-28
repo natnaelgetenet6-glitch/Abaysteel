@@ -31,7 +31,17 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 if ($user) {
-    if ($user['password'] === $password) {
+    $is_match = false;
+    // Check if it's a hash first
+    if (password_verify($password, $user['password'])) {
+        $is_match = true;
+    } 
+    // Fallback to plain text comparison for legacy/seeded users
+    else if ($user['password'] === $password) {
+        $is_match = true;
+    }
+
+    if ($is_match) {
         // Return user info (excluding password)
         unset($user['password']);
         echo json_encode($user);
