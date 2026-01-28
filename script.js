@@ -596,11 +596,18 @@ function renderTransactions() {
             `;
         } else {
             el.innerHTML = `
-                <div>
-                    <span style="color:var(--danger-color); font-weight:600;">EXPENSE</span>
-                    <span style="color:var(--text-secondary); font-size:0.85rem; margin-left:0.5rem;">${t.desc}</span>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color:var(--danger-color); font-weight:600;">EXPENSE</span>
+                        <div style="font-weight:600; color:var(--text-secondary);">$${Number(t.amount).toFixed(2)}</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                        <span style="color:var(--text-secondary); font-size:0.85rem;">${t.desc}</span>
+                        <button onclick="deleteExpense(${t.id})" class="btn-icon" style="color:var(--danger-color); padding: 0;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </div>
                 </div>
-                <div style="font-weight:600; color:var(--text-secondary);">-$${Number(t.amount).toFixed(2)}</div>
             `;
         }
         transactionsList.appendChild(el);
@@ -608,7 +615,6 @@ function renderTransactions() {
 }
 
 function renderHistory() {
-    renderExpensesTable(); // Also update dedicated expense table
     const historyTableBody = document.getElementById('history-table-body');
     const searchVal = document.getElementById('history-search').value.toLowerCase();
 
@@ -671,36 +677,6 @@ function renderHistory() {
             `;
         }
         historyTableBody.appendChild(tr);
-    });
-}
-
-function renderExpensesTable() {
-    const tableBody = document.getElementById('expenses-table-body');
-    if (!tableBody) return;
-
-    // Filter expenses from the 'expenses' array (or shared history pool)
-    // Actually, expenses are already filtered in the fetchHistory call and stored in 'expenses'
-    tableBody.innerHTML = '';
-
-    if (expenses.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 1rem; color:var(--text-secondary);">No expenses recorded</td></tr>';
-        return;
-    }
-
-    expenses.forEach(exp => {
-        const tr = document.createElement('tr');
-        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
-        tr.innerHTML = `
-            <td style="padding: 0.5rem; font-size: 0.8rem;">${new Date(exp.date).toLocaleDateString()}</td>
-            <td style="padding: 0.5rem;">${exp.desc}</td>
-            <td style="padding: 0.5rem; font-weight: 600;">$${Number(exp.amount).toFixed(2)}</td>
-            <td style="padding: 0.5rem; text-align: right;">
-                <button onclick="deleteExpense(${exp.id})" class="btn-icon" style="color:var(--danger-color);">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-            </td>
-        `;
-        tableBody.appendChild(tr);
     });
 }
 
