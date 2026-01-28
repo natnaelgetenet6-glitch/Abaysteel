@@ -21,9 +21,9 @@
       style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; padding: 0.75rem; display: none;">
       <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">Shop (POS)</button>
       <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
+      <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
       <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
       <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
-      <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
       <button class="nav-btn" onclick="logout()"
         style="margin-left: auto; color: var(--danger-color); border-color: var(--danger-color);">Logout</button>
     </nav>
@@ -174,6 +174,19 @@
               <div class="stat-card" style="flex: 1 1 45%;">
                 <span class="stat-label">Net Income</span>
                 <span class="stat-value" id="net-income" style="color: var(--success-color)">$0.00</span>
+              </div>
+              <div class="stat-card"
+                style="flex: 1 1 100%; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <a href="users.php" class="btn btn-primary"
+                  style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  Manage System Users (Open New Page)
+                </a>
               </div>
             </div>
           </div>
@@ -428,7 +441,7 @@
     </div>
   </div> <!-- This closes #app -->
 
-  <script src="script.js?v=1.0.5"></script>
+  <script src="script.js?v=1.0.6"></script>
 </body>
 
 </html>
