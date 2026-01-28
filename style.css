@@ -46,6 +46,7 @@ h4 {
 .text-gradient {
     background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -133,8 +134,8 @@ header {
     animation: fadeIn 0.3s ease;
 }
 
-.view-section.hidden {
-    display: none;
+.hidden {
+    display: none !important;
 }
 
 /* Inventory & Lists */
