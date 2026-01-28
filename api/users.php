@@ -27,7 +27,7 @@ try {
             $username = $data['username'];
             $role = $data['role'];
             $id = isset($data['id']) ? $data['id'] : null;
-            $password = isset($data['password']) && !empty($data['password']) ? password_hash($data['password'], PASSWORD_DEFAULT) : null;
+            $password = isset($data['password']) && !empty($data['password']) ? $data['password'] : null;
 
             if ($id) {
                 // Update
