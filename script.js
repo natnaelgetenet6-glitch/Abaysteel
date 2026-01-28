@@ -608,6 +608,7 @@ function renderTransactions() {
 }
 
 function renderHistory() {
+    renderExpensesTable(); // Also update dedicated expense table
     const historyTableBody = document.getElementById('history-table-body');
     const searchVal = document.getElementById('history-search').value.toLowerCase();
 
@@ -671,6 +672,52 @@ function renderHistory() {
         }
         historyTableBody.appendChild(tr);
     });
+}
+
+function renderExpensesTable() {
+    const tableBody = document.getElementById('expenses-table-body');
+    if (!tableBody) return;
+
+    // Filter expenses from the 'expenses' array (or shared history pool)
+    // Actually, expenses are already filtered in the fetchHistory call and stored in 'expenses'
+    tableBody.innerHTML = '';
+
+    if (expenses.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 1rem; color:var(--text-secondary);">No expenses recorded</td></tr>';
+        return;
+    }
+
+    expenses.forEach(exp => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        tr.innerHTML = `
+            <td style="padding: 0.5rem; font-size: 0.8rem;">${new Date(exp.date).toLocaleDateString()}</td>
+            <td style="padding: 0.5rem;">${exp.desc}</td>
+            <td style="padding: 0.5rem; font-weight: 600;">$${Number(exp.amount).toFixed(2)}</td>
+            <td style="padding: 0.5rem; text-align: right;">
+                <button onclick="deleteExpense(${exp.id})" class="btn-icon" style="color:var(--danger-color);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+async function deleteExpense(id) {
+    if (confirm('Are you sure you want to delete this expense?')) {
+        try {
+            const res = await fetch(`${API_URL}/expenses.php?id=${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await Promise.all([fetchStats(), fetchHistory()]);
+            } else {
+                alert('Failed to delete expense');
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            alert('Failed to delete expense: Network Error');
+        }
+    }
 }
 
 function renderPriceNotes() {
@@ -1090,6 +1137,7 @@ window.deletePriceNote = deletePriceNote;
 window.deleteUser = deleteUser;
 window.editUser = editUser;
 window.logout = logout;
+window.deleteExpense = deleteExpense;
 window.renderHistory = renderHistory;
 window.openTransferModal = openTransferModal;
 
