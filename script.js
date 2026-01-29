@@ -430,7 +430,13 @@ function renderManagement() {
 async function deleteProduct(id) {
     if (confirm('Delete this product?')) {
         try {
-            const res = await fetch(`${API_URL}/products.php?id=${id}`, { method: 'DELETE' });
+            // Using POST with action=delete as a more robust fallback for all servers
+            const res = await fetch(`${API_URL}/products.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', id: id })
+            });
+
             if (res.ok) {
                 await fetchProducts();
             } else {
@@ -770,7 +776,12 @@ function editPriceNote(note) {
 async function deletePriceNote(id) {
     if (confirm('Delete this price note?')) {
         try {
-            const res = await fetch(`${API_URL}/price_notes.php?id=${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/price_notes.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', id: id })
+            });
+
             if (res.ok) {
                 await fetchPriceNotes();
             } else {

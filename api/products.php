@@ -47,6 +47,16 @@ if ($method === 'POST') {
     try {
         $input = json_decode(file_get_contents('php://input'), true);
         
+        // Handle Delete via POST (Fallback)
+        if (isset($input['action']) && $input['action'] === 'delete') {
+            $id = $input['id'] ?? null;
+            if (!$id) throw new Exception("ID required for deletion");
+            $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
+            $stmt->execute([$id]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
         if (!$input || empty($input['name']) || empty($input['type'])) {
             throw new Exception("Name and Type are required");
         }

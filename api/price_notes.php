@@ -54,6 +54,20 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
+    // Handle Delete via POST (Fallback)
+    if (isset($input['action']) && $input['action'] === 'delete') {
+        $id = $input['id'] ?? null;
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'ID required']);
+            exit;
+        }
+        $stmt = $pdo->prepare("DELETE FROM price_notes WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     // Basic Validation
     if (empty($input['item_name']) || !isset($input['min_price']) || !isset($input['max_price'])) {
         http_response_code(400);
