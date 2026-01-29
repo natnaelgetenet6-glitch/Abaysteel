@@ -430,10 +430,15 @@ function renderManagement() {
 async function deleteProduct(id) {
     if (confirm('Delete this product?')) {
         try {
-            await fetch(`${API_URL}/products.php?id=${id}`, { method: 'DELETE' });
-            await fetchProducts();
+            const res = await fetch(`${API_URL}/products.php?id=${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await fetchProducts();
+            } else {
+                const data = await res.json();
+                alert('Failed to delete product: ' + (data.error || 'Unknown error'));
+            }
         } catch (err) {
-            alert('Failed to delete product');
+            alert('Failed to delete product: Network Error');
             console.error(err);
         }
     }
@@ -765,10 +770,15 @@ function editPriceNote(note) {
 async function deletePriceNote(id) {
     if (confirm('Delete this price note?')) {
         try {
-            await fetch(`${API_URL}/price_notes.php?id=${id}`, { method: 'DELETE' });
-            await fetchPriceNotes();
+            const res = await fetch(`${API_URL}/price_notes.php?id=${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await fetchPriceNotes();
+            } else {
+                const data = await res.json();
+                alert('Failed to delete rate: ' + (data.error || 'Unknown error'));
+            }
         } catch (err) {
-            alert('Failed to delete rate');
+            alert('Failed to delete rate: Network Error');
             console.error(err);
         }
     }
@@ -821,13 +831,13 @@ async function deleteUser(id) {
         try {
             const res = await fetch(`${API_URL}/users.php?id=${id}`, { method: 'DELETE' });
             if (res.ok) {
-                alert('User deleted successfully');
                 await fetchUsers();
             } else {
-                alert('Failed to delete user');
+                const data = await res.json();
+                alert('Failed to delete user: ' + (data.error || 'Unknown error'));
             }
         } catch (err) {
-            alert('Failed to delete user');
+            alert('Failed to delete user: Network Error');
             console.error(err);
         }
     }

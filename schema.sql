@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `sale_items` (
     `unit_price` DECIMAL(10, 2) NOT NULL, -- Price at the moment of sale
     `subtotal` DECIMAL(10, 2) NOT NULL,
     CONSTRAINT `fk_item_sale` FOREIGN KEY (`sale_id`) REFERENCES `sales` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_item_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+    CONSTRAINT `fk_item_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 );
 
 -- 6. Expenses Table
