@@ -1137,10 +1137,19 @@ window.logout = logout;
 window.deleteExpense = deleteExpense;
 window.renderHistory = renderHistory;
 window.openTransferModal = openTransferModal;
+window.editPriceNote = editPriceNote;
+window.fetchPriceNotes = fetchPriceNotes;
+console.log('Script loaded. Window exports:', window.deleteProduct);
 
 // Simple Modals
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
+}
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+}
 
 // Start
 init();
