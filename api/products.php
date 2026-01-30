@@ -22,10 +22,21 @@ if ($method === 'DELETE') {
     }
     
     try {
+        $pdo->beginTransaction();
+        
+        // Manual Cascade Delete: Remove related sale items first
+        $stmtEx = $pdo->prepare("DELETE FROM sale_items WHERE product_id = ?");
+        $stmtEx->execute([$id]);
+
         $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
         $stmt->execute([$id]);
+        
+        $pdo->commit();
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         http_response_code(500);
         echo json_encode(['error' => 'Failed to delete product: ' . $e->getMessage()]);
     }
@@ -51,8 +62,17 @@ if ($method === 'POST') {
         if (isset($input['action']) && $input['action'] === 'delete') {
             $id = $input['id'] ?? null;
             if (!$id) throw new Exception("ID required for deletion");
+            
+            $pdo->beginTransaction();
+            
+            // Manual Cascade Delete: Remove related sale items first
+            $stmtEx = $pdo->prepare("DELETE FROM sale_items WHERE product_id = ?");
+            $stmtEx->execute([$id]);
+
             $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
             $stmt->execute([$id]);
+            
+            $pdo->commit();
             echo json_encode(['success' => true]);
             exit;
         }
