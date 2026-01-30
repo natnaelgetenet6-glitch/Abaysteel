@@ -13,6 +13,7 @@ $sql = "
         id, expense_date as date, amount, NULL as sell_type, NULL as user, NULL as buyer_name, description, 'expense' as type 
     FROM expenses
     ORDER BY date DESC
+    LIMIT 500
 ";
 
 $stmt = $pdo->query($sql);
