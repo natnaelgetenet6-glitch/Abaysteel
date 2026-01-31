@@ -673,7 +673,9 @@ function renderHistory() {
                 <td style="padding: 1rem;">${t.sellType || 'Cash'}</td>
                 <td style="padding: 1rem; font-weight:700;">$${Number(t.total).toFixed(2)}</td>
                 <td style="padding: 1rem;">
-                     <!-- Details/Delete actions not fully implemented for history in this view for simplicity -->
+                     <button onclick="deleteHistoryItem(${t.id}, 'sale')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
+                        Delete
+                     </button>
                 </td>
             `;
         } else {
@@ -684,7 +686,11 @@ function renderHistory() {
                 <td style="padding: 1rem; color:var(--text-secondary);">${t.desc}</td>
                 <td style="padding: 1rem;">---</td>
                 <td style="padding: 1rem; font-weight:700; color:var(--text-secondary);">-$${Number(t.amount).toFixed(2)}</td>
-                <td style="padding: 1rem;"></td>
+                <td style="padding: 1rem;">
+                     <button onclick="deleteHistoryItem(${t.id}, 'expense')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
+                        Delete
+                     </button>
+                </td>
             `;
         }
         historyTableBody.appendChild(tr);
@@ -692,18 +698,58 @@ function renderHistory() {
 }
 
 async function deleteExpense(id) {
-    if (confirm('Are you sure you want to delete this expense?')) {
-        try {
-            const res = await fetch(`${API_URL}/expenses.php?id=${id}`, { method: 'DELETE' });
-            if (res.ok) {
-                await Promise.all([fetchStats(), fetchHistory()]);
-            } else {
-                alert('Failed to delete expense');
-            }
-        } catch (err) {
-            console.error('Delete error:', err);
-            alert('Failed to delete expense: Network Error');
+    // Legacy function, redirect to generic if used elsewhere or keep for sidebar
+    deleteHistoryItem(id, 'expense');
+}
+
+async function deleteHistoryItem(id, type) {
+    if (!confirm('Are you sure you want to delete this record?')) return;
+
+    try {
+        const res = await fetch(`${API_URL}/history.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'delete', id: id, type: type })
+        });
+
+        if (res.ok) {
+            await Promise.all([fetchStats(), fetchHistory()]);
+        } else {
+            const data = await res.json();
+            alert('Failed to delete item: ' + (data.error || 'Unknown error'));
         }
+    } catch (err) {
+        console.error('Delete error:', err);
+        alert('Failed to delete item: Network Error');
+    }
+}
+
+async function clearHistory() {
+    if (!confirm('Are you sure you want to delete ALL history (Sales & Expenses)? This cannot be undone.')) return;
+
+    const doubleCheck = prompt('Type "DELETE" to confirm clearing all history:');
+    if (doubleCheck !== 'DELETE') {
+        alert('Action cancelled.');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/history.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'clear' })
+        });
+
+        if (res.ok) {
+            alert('History cleared successfully.');
+            await Promise.all([fetchStats(), fetchHistory()]);
+        } else {
+            const data = await res.json();
+            alert('Failed to clear history: ' + (data.error || 'Unknown error'));
+        }
+    } catch (err) {
+        console.error('Clear history error:', err);
+        alert('Failed to clear history: Network Error');
     }
 }
 
@@ -1139,6 +1185,8 @@ window.renderHistory = renderHistory;
 window.openTransferModal = openTransferModal;
 window.editPriceNote = editPriceNote;
 window.fetchPriceNotes = fetchPriceNotes;
+window.deleteHistoryItem = deleteHistoryItem;
+window.clearHistory = clearHistory;
 console.log('Script loaded. Window exports:', window.deleteProduct);
 
 // Simple Modals
