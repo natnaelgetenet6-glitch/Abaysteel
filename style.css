@@ -340,22 +340,29 @@ header {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-hover);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    border-radius: 5px;
+    background: #475569;
+    /* Solid Slate Color */
+    border: 3px solid rgba(15, 23, 42, 1);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-color);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: #475569 transparent;
 }
 
 /* Modal */
