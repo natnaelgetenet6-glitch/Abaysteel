@@ -49,8 +49,9 @@
     </div>
 
     <!-- VIEW: SHOP (POS) -->
-    <div id="view-shop" class="view-section hidden">
-      <div style="display: flex; gap: 1rem; margin-top: 1rem; height: calc(100vh - 200px);">
+    <div id="view-shop" class="view-section hidden"
+      style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+      <div style="display: flex; gap: 1rem; margin-top: 1rem; flex: 1; min-height: 0;">
 
         <!-- Shop Inventory (Left) -->
         <section class="glass-panel" style="flex: 2; display: flex; flex-direction: column;">
@@ -117,7 +118,7 @@
       <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 1rem; margin-top: 1rem; flex: 1; min-height: 0;">
 
         <!-- Left Col: Inventory Management -->
-        <div style="display: flex; flex-direction: column; gap: 1rem; overflow: hidden;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; overflow: hidden; min-height: 0;">
           <section class="glass-panel" style="flex: 1; display: flex; flex-direction: column;">
             <div class="section-header">
               <h3>Stock & Inventory</h3>
@@ -154,7 +155,7 @@
         </div>
 
         <!-- Right Col: Stats & Expenses -->
-        <div style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; overflow: hidden; min-height: 0;">
 
           <!-- Stats moved here -->
           <div class="glass-panel">
@@ -217,10 +218,10 @@
       </div>
     </div>
 
-    <!-- VIEW: HISTORY -->
-    <div id="view-history" class="view-section hidden">
+    <div id="view-history" class="view-section hidden"
+      style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
       <div class="glass-panel"
-        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        style="margin-top: 1rem; padding: 1.5rem; flex: 1; display: flex; flex-direction: column; min-height: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3>Full Transaction History</h3>
           <div style="display: flex; gap: 0.5rem;">
@@ -251,10 +252,10 @@
       </div>
     </div>
 
-    <!-- VIEW: ITEM RATES -->
-    <div id="view-notes" class="view-section hidden">
+    <div id="view-notes" class="view-section hidden"
+      style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
       <div class="glass-panel"
-        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        style="margin-top: 1rem; padding: 1.5rem; flex: 1; display: flex; flex-direction: column; min-height: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3>Item Rates (Min/Max Avg)</h3>
           <div style="display: flex; gap: 0.5rem;">
@@ -319,10 +320,10 @@
       </div>
     </div>
 
-    <!-- VIEW: USERS -->
-    <div id="view-users" class="view-section hidden">
+    <div id="view-users" class="view-section hidden"
+      style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
       <div class="glass-panel"
-        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        style="margin-top: 1rem; padding: 1.5rem; flex: 1; display: flex; flex-direction: column; min-height: 0;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
           <h3>User Management</h3>
           <a href="users.php" class="btn btn-text" style="color: var(--text-accent); text-decoration: underline;">Open
@@ -444,7 +445,7 @@
     </div>
   </div> <!-- This closes #app -->
 
-  <script src="script.js?v=2.0.0"></script>
+  <script src="script.js?v=2.0.2"></script>
 </body>
 
 </html>
