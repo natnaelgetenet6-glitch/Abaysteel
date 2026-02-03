@@ -422,6 +422,12 @@ function renderManagement() {
                     Delete
                 </button>
             </td>
+            <td>
+                <button onclick="editProduct(${product.id})" 
+                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
+                    Edit
+                </button>
+            </td>
         `;
         mgmtList.appendChild(tr);
     });
@@ -930,8 +936,38 @@ document.getElementById('note-item-name').addEventListener('input', (e) => {
     }
 });
 
+function editProduct(id) {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    document.getElementById('new-id').value = product.id;
+    document.getElementById('new-type').value = product.type;
+    document.getElementById('new-name').value = product.name;
+    document.getElementById('new-dim').value = product.dimensions;
+    document.getElementById('new-qty').value = product.stock_quantity;
+    document.getElementById('new-buy-price').value = product.buy_price;
+    document.getElementById('new-sell-price').value = product.sell_price;
+
+    // Update Modal Title and Button
+    document.querySelector('#add-product-modal h2').textContent = 'Edit Steel';
+    document.querySelector('#add-product-form button[type="submit"]').textContent = 'Update Product';
+
+    openModal('add-product-modal');
+}
+
+// Reset form when opening for "Add"
+window.openAddProductModal = function () {
+    document.getElementById('add-product-form').reset();
+    document.getElementById('new-id').value = '';
+    document.querySelector('#add-product-modal h2').textContent = 'Add New Steel';
+    document.querySelector('#add-product-form button[type="submit"]').textContent = 'Add Product';
+    openModal('add-product-modal');
+}
+
+
 document.getElementById('add-product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const id = document.getElementById('new-id').value;
     const name = document.getElementById('new-name').value;
     const type = document.getElementById('new-type').value;
     const dimInput = document.getElementById('new-dim').value;
@@ -944,33 +980,51 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
     if (dimensions.length === 0) dimensions = ['']; // Allow adding even without dimensions
 
     try {
-        let successCount = 0;
-        let lastError = null;
-
-        // Post each dimension as a separate product
-        for (const dim of dimensions) {
+        if (id) {
+            // Update Mode: Single request, no splitting
             const res = await fetch(`${API_URL}/products.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name, type, dimensions: dim, quantity: qty, buyPrice, sellPrice
+                    id, name, type, dimensions: dimInput.trim(), quantity: qty, buyPrice, sellPrice
                 })
             });
-
-            if (res.ok) {
-                successCount++;
+            const data = await res.json();
+            if (res.ok && data.success) {
+                alert('Product updated successfully!');
             } else {
-                const errData = await res.json();
-                lastError = errData.error || 'Unknown error';
+                alert('Failed to update: ' + (data.error || 'Unknown error'));
             }
-        }
-
-        if (successCount === dimensions.length) {
-            alert('Product(s) added successfully!');
-        } else if (successCount > 0) {
-            alert(`Added ${successCount} items, but some failed: ${lastError}`);
         } else {
-            alert(`Failed to add product: ${lastError}`);
+            // Add Mode: potential bulk add
+            let successCount = 0;
+            let lastError = null;
+
+            // Post each dimension as a separate product
+            for (const dim of dimensions) {
+                const res = await fetch(`${API_URL}/products.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name, type, dimensions: dim, quantity: qty, buyPrice, sellPrice
+                    })
+                });
+
+                if (res.ok) {
+                    successCount++;
+                } else {
+                    const errData = await res.json();
+                    lastError = errData.error || 'Unknown error';
+                }
+            }
+
+            if (successCount === dimensions.length) {
+                alert('Product(s) added successfully!');
+            } else if (successCount > 0) {
+                alert(`Added ${successCount} items, but some failed: ${lastError}`);
+            } else {
+                alert(`Failed to add product: ${lastError}`);
+            }
         }
 
         closeModal('add-product-modal');
@@ -978,8 +1032,8 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
         await fetchProducts(); // Refresh list
 
     } catch (err) {
-        console.error('Error adding product:', err);
-        alert('Error adding product: Network Error');
+        console.error('Error saving product:', err);
+        alert('Error saving product: Network Error');
     }
 });
 
@@ -1186,6 +1240,7 @@ window.openTransferModal = openTransferModal;
 window.editPriceNote = editPriceNote;
 window.fetchPriceNotes = fetchPriceNotes;
 window.deleteHistoryItem = deleteHistoryItem;
+window.editProduct = editProduct;
 window.clearHistory = clearHistory;
 console.log('Script loaded. Window exports:', window.deleteProduct);
 

@@ -121,7 +121,7 @@
           <section class="glass-panel" style="flex: 1; display: flex; flex-direction: column;">
             <div class="section-header">
               <h3>Stock & Inventory</h3>
-              <button class="btn-icon" onclick="openModal('add-product-modal')">
+              <button class="btn-icon" onclick="openAddProductModal()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 5v14M5 12h14" />
                 </svg>
@@ -406,6 +406,7 @@
       <div class="glass-panel" style="width: 400px; padding: 2rem; background: #0f172a;">
         <h2 style="margin-bottom: 1.5rem;">Add New Steel</h2>
         <form id="add-product-form">
+          <input type="hidden" id="new-id">
           <div class="input-group">
             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Type</label>
             <input type="text" id="new-type" class="input-field" placeholder="e.g. H-Beam" required>

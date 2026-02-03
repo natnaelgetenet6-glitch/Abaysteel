@@ -81,6 +81,26 @@ if ($method === 'POST') {
             throw new Exception("Name and Type are required");
         }
 
+
+        // Check for Update Action (ID exists and no specific action or action is update)
+        if (!empty($input['id'])) {
+             $sql = "UPDATE products SET name=?, type=?, dimensions=?, stock_quantity=?, buy_price=?, sell_price=?, unit=?, min_stock_level=? WHERE id=?";
+             $stmt = $pdo->prepare($sql);
+             $stmt->execute([
+                $input['name'],
+                $input['type'],
+                $input['dimensions'] ?? '',
+                $input['quantity'] ?? 0,
+                $input['buyPrice'] ?? 0,
+                $input['sellPrice'] ?? 0,
+                $input['unit'] ?? 'pcs',
+                $input['minStockLevel'] ?? 10,
+                $input['id']
+            ]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
         $sql = "INSERT INTO products (name, type, dimensions, stock_quantity, buy_price, sell_price, unit, min_stock_level) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 
