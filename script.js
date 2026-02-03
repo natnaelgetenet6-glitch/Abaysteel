@@ -187,6 +187,16 @@ function switchView(viewName) {
     if (viewName === 'history') fetchHistory();
     if (viewName === 'notes') fetchPriceNotes();
     if (viewName === 'users') fetchUsers();
+
+    // Close mobile navigation after selecting a view
+    const mobileNav = document.getElementById('main-nav');
+    const overlay = document.getElementById('mobile-nav-overlay');
+    const hamburger = document.getElementById('hamburger-btn');
+    if (mobileNav && overlay && hamburger) {
+        mobileNav.classList.remove('mobile-active');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('active');
+    }
 }
 
 function updateNavVisibility() {
@@ -1252,6 +1262,22 @@ window.editProduct = editProduct;
 window.openAddProductModal = openAddProductModal;
 window.clearHistory = clearHistory;
 console.log('Script loaded. Window exports:', window.deleteProduct);
+
+// Mobile Navigation Toggle
+function toggleMobileNav() {
+    const nav = document.getElementById('main-nav');
+    const overlay = document.getElementById('mobile-nav-overlay');
+    const hamburger = document.getElementById('hamburger-btn');
+
+    if (nav && overlay && hamburger) {
+        nav.classList.toggle('mobile-active');
+        overlay.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+}
+
+// Export toggle function
+window.toggleMobileNav = toggleMobileNav;
 
 // Simple Modals
 function openModal(id) {

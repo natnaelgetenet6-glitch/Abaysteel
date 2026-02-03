@@ -420,6 +420,80 @@ header {
 }
 
 /* ========================================
+   HAMBURGER MENU & MOBILE NAVIGATION
+   ======================================== */
+
+/* Hamburger Menu Button - Hidden by default, shown on mobile */
+.hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1001;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-menu:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary-color);
+}
+
+/* Hamburger animation when active */
+.hamburger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Mobile Navigation Overlay */
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-nav-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ========================================
    MOBILE RESPONSIVE STYLES
    ======================================== */
 
@@ -464,25 +538,55 @@ header {
 
     #app {
         padding: 0.5rem;
+        padding-top: 4rem;
+        /* Make room for hamburger button */
     }
 
-    /* Navigation - stack vertically or scroll horizontally */
+    /* Show hamburger menu on mobile */
+    .hamburger-menu {
+        display: flex !important;
+    }
+
+    /* Hide navigation by default on mobile, show as side panel when active */
     #main-nav {
-        overflow-x: auto;
-        overflow-y: visible;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        padding: 0.5rem;
-        margin-top: 0.5rem;
-        gap: 0.5rem;
-        -webkit-overflow-scrolling: touch;
+        position: fixed;
+        top: 0;
+        right: -50%;
+        /* Start off-screen */
+        width: 50%;
+        height: 100vh;
+        margin: 0 !important;
+        padding: 2rem 1rem !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+        z-index: 1000;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+        border-radius: 0 !important;
+        border-right: none !important;
+    }
+
+    /* Show navigation when active */
+    #main-nav.mobile-active {
+        right: 0;
     }
 
     .nav-btn {
-        white-space: nowrap;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        flex-shrink: 0;
+        white-space: normal !important;
+        padding: 1rem !important;
+        font-size: 0.9rem !important;
+        text-align: left !important;
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 8px;
+        justify-content: flex-start;
+    }
+
+    .nav-btn:last-child {
+        margin-top: auto !important;
+        margin-left: 0 !important;
     }
 
     /* Typography adjustments */
