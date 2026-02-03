@@ -131,6 +131,9 @@ header {
 .view-section {
     flex: 1;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     animation: fadeIn 0.3s ease;
 }
 
@@ -344,25 +347,25 @@ header {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.4);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #475569;
-    /* Solid Slate Color */
-    border: 3px solid rgba(15, 23, 42, 1);
+    background: var(--text-accent);
+    /* Bright Cyan Handle */
+    border: 2px solid var(--bg-dark);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
+    background: white;
 }
 
 /* For Firefox */
 * {
-    scrollbar-width: auto;
-    scrollbar-color: #475569 transparent;
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-accent) transparent;
 }
 
 /* Modal */
