@@ -211,43 +211,26 @@ header {
     padding-right: 0.5rem;
 }
 
-/* Category Tabs */
-.category-tabs {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding-bottom: 0.75rem;
-    margin-bottom: 1rem;
-    scrollbar-width: none;
-}
-
-.category-tabs::-webkit-scrollbar {
-    display: none;
-}
-
-.category-tabs .tab {
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
+/* Item Selector Card (Two-Panel) */
+.item-selector-card {
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 600;
+    padding: 1.25rem;
+    border-radius: 12px;
     cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
-.category-tabs .tab:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+.item-selector-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-accent);
 }
 
-.category-tabs .tab.active {
-    background: var(--primary-gradient);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 10px rgba(56, 189, 248, 0.2);
+.item-selector-card.selected {
+    background: var(--bg-hover);
+    border-color: var(--text-accent);
+    box-shadow: 0 0 15px rgba(2, 132, 199, 0.2);
 }
 
 .product-card {

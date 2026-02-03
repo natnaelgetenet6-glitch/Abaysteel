@@ -73,11 +73,6 @@
 
         <!-- Shop Inventory (Left) -->
         <section class="glass-panel" style="flex: 2; display: flex; flex-direction: column; min-height: 0;">
-          <div class="category-tabs" id="shop-category-tabs">
-            <button class="tab active" onclick="filterByCategory('')">All Items</button>
-            <!-- Categories injected by JS -->
-          </div>
-
           <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem;">
             <div style="position: relative; flex: 1;">
               <svg
@@ -90,12 +85,12 @@
                 style="padding-left: 2.5rem; margin-bottom: 0;">
             </div>
 
-            <select id="shop-size-filter" class="input-field" style="width: 150px; margin-bottom: 0;" disabled>
-              <option value="">All Sizes</option>
+            <select id="shop-type-filter" class="input-field" style="width: 150px; margin-bottom: 0;">
+              <option value="">All Types</option>
             </select>
 
-            <select id="shop-type-filter" class="input-field" style="display: none;">
-              <option value="">All Types</option>
+            <select id="shop-size-filter" class="input-field" style="width: 150px; margin-bottom: 0;" disabled>
+              <option value="">All Sizes</option>
             </select>
           </div>
 
@@ -165,11 +160,12 @@
                 <thead class="sticky-header">
                   <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
                     <th style="padding: 0.5rem;">Product</th>
-                    <th style="padding: 0.5rem;">Type/Dim</th>
-                    <th style="padding: 0.5rem;">Buy/Sell</th>
-                    <th style="padding: 0.5rem;">Main Store</th>
-                    <th style="padding: 0.5rem;">Shop Stock</th>
-                    <th style="padding: 0.5rem;">Transfer</th>
+                    <th style="padding: 0.5rem;">Type</th>
+                    <th style="padding: 0.5rem;">Dimensions</th>
+                    <th style="padding: 0.5rem;">Buy Price</th>
+                    <th style="padding: 0.5rem;">Sell Price</th>
+                    <th style="padding: 0.5rem;">Store</th>
+                    <th style="padding: 0.5rem;">Shop</th>
                     <th style="padding: 0.5rem;">Action</th>
                   </tr>
                 </thead>
@@ -191,24 +187,31 @@
               <button onclick="clearBusinessData()" class="btn-text"
                 style="color:var(--text-secondary); font-size:0.85rem;">Clear History</button>
             </div>
-            <div class="stats-container" style="flex-direction: column; gap: 0.75rem;">
-              <div class="stat-card"
-                style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem;">
-                <span class="stat-label" style="margin-bottom: 0;">Today's Sales</span>
-                <span class="stat-value text-gradient" id="total-sales" style="font-size: 1.5rem;">$0.00</span>
+            <div class="stats-container" style="flex-wrap: wrap;">
+              <div class="stat-card" style="flex: 1 1 100%;">
+                <span class="stat-label">Total Sales (Today)</span>
+                <span class="stat-value text-gradient" id="total-sales">$0.00</span>
+              </div>
+              <div class="stat-card" style="flex: 1 1 45%;">
+                <span class="stat-label">Expenses (Month)</span>
+                <span class="stat-value" id="total-expenses" style="color: var(--danger-color)">$0.00</span>
+              </div>
+              <div class="stat-card" style="flex: 1 1 45%;">
+                <span class="stat-label">Net Income</span>
+                <span class="stat-value" id="net-income" style="color: var(--success-color)">$0.00</span>
               </div>
               <div class="stat-card"
-                style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem;">
-                <span class="stat-label" style="margin-bottom: 0;">Monthly Expenses</span>
-                <span class="stat-value" id="total-expenses"
-                  style="color: var(--danger-color); font-size: 1.5rem;">$0.00</span>
-              </div>
-              <div class="stat-card"
-                style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-top: 2px solid var(--border-color);">
-                <span class="stat-label" style="margin-bottom: 0; font-weight: 700; color: var(--text-primary);">Net
-                  Income</span>
-                <span class="stat-value" id="net-income"
-                  style="color: var(--success-color); font-size: 1.75rem;">$0.00</span>
+                style="flex: 1 1 100%; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <button class="btn btn-primary" onclick="switchView('users')"
+                  style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  Manage System Users (Privacy)
+                </button>
               </div>
             </div>
           </div>
@@ -499,7 +502,7 @@
   </div>
   </div> <!-- This closes #app -->
 
-  <script src="script.js?v=1.0.9"></script>
+  <script src="script.js?v=1.1.0"></script>
 </body>
 
 </html>
