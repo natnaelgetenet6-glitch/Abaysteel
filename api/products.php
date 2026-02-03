@@ -84,13 +84,14 @@ if ($method === 'POST') {
 
         // Check for Update Action (ID exists and no specific action or action is update)
         if (!empty($input['id'])) {
-             $sql = "UPDATE products SET name=?, type=?, dimensions=?, stock_quantity=?, buy_price=?, sell_price=?, unit=?, min_stock_level=? WHERE id=?";
+             $sql = "UPDATE products SET name=?, type=?, dimensions=?, stock_quantity=?, main_store_quantity=?, buy_price=?, sell_price=?, unit=?, min_stock_level=? WHERE id=?";
              $stmt = $pdo->prepare($sql);
              $stmt->execute([
                 $input['name'],
                 $input['type'],
                 $input['dimensions'] ?? '',
                 $input['quantity'] ?? 0,
+                $input['storeQuantity'] ?? 0,
                 $input['buyPrice'] ?? 0,
                 $input['sellPrice'] ?? 0,
                 $input['unit'] ?? 'pcs',
@@ -101,8 +102,8 @@ if ($method === 'POST') {
             exit;
         }
 
-        $sql = "INSERT INTO products (name, type, dimensions, stock_quantity, buy_price, sell_price, unit, min_stock_level) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO products (name, type, dimensions, stock_quantity, main_store_quantity, buy_price, sell_price, unit, min_stock_level) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
@@ -110,6 +111,7 @@ if ($method === 'POST') {
             $input['type'],
             $input['dimensions'] ?? '',
             $input['quantity'] ?? 0,
+            $input['storeQuantity'] ?? 0,
             $input['buyPrice'] ?? 0,
             $input['sellPrice'] ?? 0,
             $input['unit'] ?? 'pcs',
