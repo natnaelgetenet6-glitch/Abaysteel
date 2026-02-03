@@ -140,6 +140,9 @@ header {
 
 /* Inventory & Lists */
 .product-list {
+    flex: 1;
+    min-height: 0;
+    /* Crucial for nested flex scrolling */
     overflow-y: auto;
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -240,6 +243,14 @@ header {
 #mgmt-inventory-list td {
     padding: 0.75rem 0.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-dark);
+    z-index: 10;
+    box-shadow: 0 1px 0 var(--border-color);
 }
 
 /* Sales (Right) */
