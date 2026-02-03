@@ -395,38 +395,42 @@ function renderSizeSelector() {
 // --- MANAGEMENT LOGIC ---
 function renderManagement() {
     mgmtList.innerHTML = '';
-    const filtered = getFilteredProducts(mgmtSearch.value, null, null);
+    const searchText = mgmtSearch.value.toLowerCase();
+
+    const filtered = products.filter(p =>
+        p.name.toLowerCase().includes(searchText) ||
+        p.type.toLowerCase().includes(searchText) ||
+        (p.dimensions && p.dimensions.toLowerCase().includes(searchText))
+    );
 
     if (filtered.length === 0) {
-        mgmtList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">No items found</td></tr>';
+        mgmtList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">No items found</td></tr>';
         return;
     }
 
-    filtered.forEach(product => {
+    filtered.forEach(p => {
+        const isLowStock = p.stock_quantity <= (p.min_stock_level || 5);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${product.name}</td>
-            <td><span style="font-size:0.8rem; opacity:0.7;">${product.type} / ${product.dimensions}</span></td>
-            <td>B:$${Number(product.buy_price).toFixed(2)} / S:$${Number(product.sell_price).toFixed(2)}</td>
-            <td style="color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'inherit'}">${product.stock_quantity}</td>
-            <td style="color: var(--text-accent); font-weight: 600;">${product.shop_quantity || 0}</td>
+            <td style="padding-left: 1rem; font-weight: 600;">${p.name}</td>
+            <td>${p.type}</td>
+            <td style="color: var(--text-accent); font-weight: 600;">${p.dimensions || '-'}</td>
+            <td style="opacity: 0.8;">$${Number(p.buy_price).toFixed(2)}</td>
+            <td style="font-weight: 700; color: var(--text-accent);">$${Number(p.sell_price).toFixed(2)}</td>
+            <td style="font-weight: 700; color: ${isLowStock ? 'var(--danger-color)' : 'var(--success-color)'}">${p.stock_quantity} ${p.unit || 'pcs'}</td>
+            <td style="font-weight: 700; color: var(--text-accent);">${p.shop_quantity || 0}</td>
             <td>
-                <button onclick="openTransferModal(${product.id})" 
-                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
-                    Move to Shop
-                </button>
-            </td>
-            <td>
-                <button onclick="deleteProduct(${product.id})" 
-                    style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
-                    Delete
-                </button>
-            </td>
-            <td>
-                <button onclick="editProduct(${product.id})" 
-                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
-                    Edit
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-icon" onclick="openTransferModal(${p.id})" title="Move to Shop">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 13l5 5 5-5"/></svg>
+                    </button>
+                    <button class="btn-icon" onclick="editProduct(${p.id})" title="Edit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    </button>
+                    <button class="btn-icon" onclick="deleteProduct(${p.id})" style="color: var(--danger-color)" title="Delete">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
             </td>
         `;
         mgmtList.appendChild(tr);
