@@ -1279,6 +1279,49 @@ function toggleMobileNav() {
 // Export toggle function
 window.toggleMobileNav = toggleMobileNav;
 
+// Theme Toggle Function
+function toggleTheme() {
+    const body = document.body;
+    const sunIcon = document.getElementById('theme-icon-sun');
+    const moonIcon = document.getElementById('theme-icon-moon');
+
+    // Toggle light mode class
+    body.classList.toggle('light-mode');
+
+    // Update icons
+    if (body.classList.contains('light-mode')) {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+        localStorage.setItem('nat_theme', 'light');
+    } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+        localStorage.setItem('nat_theme', 'dark');
+    }
+}
+
+// Load saved theme on page load
+function loadTheme() {
+    const savedTheme = localStorage.getItem('nat_theme');
+    const body = document.body;
+    const sunIcon = document.getElementById('theme-icon-sun');
+    const moonIcon = document.getElementById('theme-icon-moon');
+
+    if (savedTheme === 'light') {
+        body.classList.add('light-mode');
+        if (sunIcon) sunIcon.style.display = 'none';
+        if (moonIcon) moonIcon.style.display = 'block';
+    } else {
+        body.classList.remove('light-mode');
+        if (sunIcon) sunIcon.style.display = 'block';
+        if (moonIcon) moonIcon.style.display = 'none';
+    }
+}
+
+// Export theme functions
+window.toggleTheme = toggleTheme;
+window.loadTheme = loadTheme;
+
 // Simple Modals
 function openModal(id) {
     const el = document.getElementById(id);
@@ -1290,4 +1333,5 @@ function closeModal(id) {
 }
 
 // Start
+loadTheme(); // Load theme before init
 init();
