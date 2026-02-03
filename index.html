@@ -18,13 +18,15 @@
 
     <!-- Navigation -->
     <nav id="main-nav" class="glass-panel" style="margin-top:1rem; padding:0.75rem; display:none;">
-      <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">Shop (POS)</button>
-      <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
-      <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
-      <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
-      <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
-      <button class="nav-btn" onclick="logout()"
-        style="margin-left: auto; color: var(--danger-color); border-color: var(--danger-color);">Logout</button>
+      <div class="nav-container">
+        <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">Shop (POS)</button>
+        <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
+        <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
+        <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
+        <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
+        <button class="nav-btn" onclick="logout()"
+          style="margin-left: auto; color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.2);">Logout</button>
+      </div>
     </nav>
 
     <!-- VIEW: LOGIN -->
@@ -34,13 +36,13 @@
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">Steels Management System</p>
 
         <form id="login-form">
-          <div style="margin-bottom: 1rem; text-align: left;">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Username</label>
-            <input type="text" id="login-username" class="input-field" placeholder="admin" required>
+          <div class="input-group">
+            <label class="input-label">Username</label>
+            <input type="text" id="login-username" class="input-field" placeholder="Enter username" required>
           </div>
-          <div style="margin-bottom: 2rem; text-align: left;">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Password</label>
-            <input type="password" id="login-password" class="input-field" placeholder="admin" required>
+          <div class="input-group" style="margin-bottom: 2rem;">
+            <label class="input-label">Password</label>
+            <input type="password" id="login-password" class="input-field" placeholder="Enter password" required>
           </div>
           <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Sign In</button>
         </form>
@@ -329,21 +331,18 @@
             <input type="hidden" id="manage-user-id">
 
             <div style="flex: 2; min-width: 150px;">
-              <label
-                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Username</label>
+              <label class="input-label">Username</label>
               <input type="text" id="manage-user-username" placeholder="Username" class="input-field" required>
             </div>
 
             <div style="flex: 2; min-width: 150px;">
-              <label
-                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Password</label>
+              <label class="input-label">Password</label>
               <input type="password" id="manage-user-password" placeholder="Leave blank to keep same"
                 class="input-field">
             </div>
 
             <div style="width: 140px;">
-              <label
-                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Role</label>
+              <label class="input-label">Role</label>
               <select id="manage-user-role" class="input-field" required>
                 <option value="shop">Shop</option>
                 <option value="admin">Admin</option>
@@ -383,7 +382,7 @@
         <form id="transfer-form">
           <input type="hidden" id="transfer-product-id">
           <div class="input-group">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Quantity to move</label>
+            <label class="input-label">Quantity to move</label>
             <input type="number" id="transfer-qty" class="input-field" min="1" required>
           </div>
           <p id="transfer-max-hint" style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
@@ -404,28 +403,28 @@
         <form id="add-product-form">
           <input type="hidden" id="new-id">
           <div class="input-group">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Type</label>
+            <label class="input-label">Type</label>
             <input type="text" id="new-type" class="input-field" placeholder="e.g. H-Beam" required>
           </div>
           <div class="input-group">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Name</label>
+            <label class="input-label">Name</label>
             <input type="text" id="new-name" class="input-field" placeholder="e.g. H-Beam 200" required>
           </div>
           <div class="input-group">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Dimensions</label>
+            <label class="input-label">Dimensions</label>
             <input type="text" id="new-dim" class="input-field" placeholder="e.g. 200x200mm, 300x300mm">
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="input-group">
-              <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Qty</label>
+              <label class="input-label">Qty</label>
               <input type="number" id="new-qty" class="input-field" required>
             </div>
             <div class="input-group">
-              <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Buy Price</label>
+              <label class="input-label">Buy Price</label>
               <input type="number" step="0.01" id="new-buy-price" class="input-field" placeholder="Cost" required>
             </div>
             <div class="input-group">
-              <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Sell Price</label>
+              <label class="input-label">Sell Price</label>
               <input type="number" step="0.01" id="new-sell-price" class="input-field" placeholder="Sale" required>
             </div>
           </div>
