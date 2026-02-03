@@ -17,34 +17,15 @@
   <div id="app">
 
     <!-- Navigation -->
-    <nav id="main-nav" class="glass-panel" style="margin-top:1rem; padding:0.75rem; display:none;">
-      <div class="nav-container">
-        <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-            <path d="M3 6h18" />
-            <path d="M16 10a4 4 0 0 1-8 0" />
-          </svg>
-          Shop (Sell)
-        </button>
-        <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">
-          <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-            <path d="m7.5 4.27 9 5.15" />
-            <path
-              d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-            <path d="m3.3 7 8.7 5 8.7-5" />
-            <path d="M12 22V12" />
-          </svg>
-          Inventory
-        </button>
-        <div style="border-right: 1px solid var(--border-color); height: 24px; margin: 0 0.5rem;"></div>
-        <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
-        <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Rates</button>
-        <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
-
-        <button class="nav-btn" onclick="logout()"
-          style="margin-left: auto; color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.2);">Logout</button>
-      </div>
+    <nav id="main-nav" class="glass-panel"
+      style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; padding: 0.75rem; display: none;">
+      <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">Shop (POS)</button>
+      <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
+      <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
+      <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
+      <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
+      <button class="nav-btn" onclick="logout()"
+        style="margin-left: auto; color: var(--danger-color); border-color: var(--danger-color);">Logout</button>
     </nav>
 
     <!-- VIEW: LOGIN -->
@@ -54,13 +35,13 @@
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">Steels Management System</p>
 
         <form id="login-form">
-          <div class="input-group">
-            <label class="input-label">Username</label>
-            <input type="text" id="login-username" class="input-field" placeholder="Enter username" required>
+          <div style="margin-bottom: 1rem; text-align: left;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Username</label>
+            <input type="text" id="login-username" class="input-field" placeholder="admin" required>
           </div>
-          <div class="input-group" style="margin-bottom: 2rem;">
-            <label class="input-label">Password</label>
-            <input type="password" id="login-password" class="input-field" placeholder="Enter password" required>
+          <div style="margin-bottom: 2rem; text-align: left;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Password</label>
+            <input type="password" id="login-password" class="input-field" placeholder="admin" required>
           </div>
           <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Sign In</button>
         </form>
@@ -69,30 +50,25 @@
 
     <!-- VIEW: SHOP (POS) -->
     <div id="view-shop" class="view-section hidden">
-      <div class="responsive-flex">
+      <div style="display: flex; gap: 1rem; margin-top: 1rem; height: calc(100vh - 200px);">
 
         <!-- Shop Inventory (Left) -->
-        <section class="glass-panel" style="flex: 2; display: flex; flex-direction: column; min-height: 0;">
-          <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem;">
-            <div style="position: relative; flex: 1;">
-              <svg
-                style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"
-                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-              <input type="text" id="shop-search" class="input-field" placeholder="Search product..."
-                style="padding-left: 2.5rem; margin-bottom: 0;">
-            </div>
+        <section class="glass-panel" style="flex: 2; display: flex; flex-direction: column;">
+          <div class="section-header">
+            <h3>Product Selection</h3>
+          </div>
 
-            <select id="shop-type-filter" class="input-field" style="width: 150px; margin-bottom: 0;">
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <select id="shop-type-filter" class="input-field" style="flex: 1;">
               <option value="">All Types</option>
             </select>
-
-            <select id="shop-size-filter" class="input-field" style="width: 150px; margin-bottom: 0;" disabled>
+            <select id="shop-size-filter" class="input-field" style="flex: 1;" disabled>
               <option value="">All Sizes</option>
             </select>
           </div>
+
+          <input type="text" id="shop-search" class="input-field" placeholder="Search product..."
+            style="margin-bottom: 1rem;">
 
           <div class="product-list" id="shop-list">
             <!-- Shop products injected by JS -->
@@ -100,8 +76,7 @@
         </section>
 
         <!-- Cart/Checkout (Right) -->
-        <section id="sales-section" class="glass-panel"
-          style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+        <section id="sales-section" class="glass-panel" style="flex: 1; display: flex; flex-direction: column;">
           <h3>Current Sale</h3>
           <p style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 1rem;">Click items to add</p>
 
@@ -138,11 +113,12 @@
 
     <!-- VIEW: MANAGEMENT -->
     <div id="view-management" class="view-section hidden">
-      <div class="responsive-grid">
+      <div
+        style="display: grid; grid-template-columns: 3fr 2fr; gap: 1rem; margin-top: 1rem; height: calc(100vh - 200px);">
 
         <!-- Left Col: Inventory Management -->
-        <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 0;">
-          <section class="glass-panel" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; overflow: hidden;">
+          <section class="glass-panel" style="flex: 1; display: flex; flex-direction: column;">
             <div class="section-header">
               <h3>Stock & Inventory</h3>
               <button class="btn-icon" onclick="openAddProductModal()">
@@ -155,17 +131,16 @@
             <input type="text" id="mgmt-search" class="input-field" placeholder="Search stock..."
               style="margin-bottom: 1rem;">
 
-            <div style="overflow-y: scroll; flex: 1; min-height: 0; padding-bottom: 2rem; padding-right: 5px;">
+            <div style="overflow-y: auto; flex: 1;">
               <table style="width: 100%; border-collapse: collapse; color: var(--text-primary);">
-                <thead class="sticky-header">
+                <thead>
                   <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
                     <th style="padding: 0.5rem;">Product</th>
-                    <th style="padding: 0.5rem;">Type</th>
-                    <th style="padding: 0.5rem;">Dimensions</th>
-                    <th style="padding: 0.5rem;">Buy Price</th>
-                    <th style="padding: 0.5rem;">Sell Price</th>
-                    <th style="padding: 0.5rem;">Store</th>
-                    <th style="padding: 0.5rem;">Shop</th>
+                    <th style="padding: 0.5rem;">Type/Dim</th>
+                    <th style="padding: 0.5rem;">Buy/Sell</th>
+                    <th style="padding: 0.5rem;">Main Store</th>
+                    <th style="padding: 0.5rem;">Shop Stock</th>
+                    <th style="padding: 0.5rem;">Transfer</th>
                     <th style="padding: 0.5rem;">Action</th>
                   </tr>
                 </thead>
@@ -178,7 +153,7 @@
         </div>
 
         <!-- Right Col: Stats & Expenses -->
-        <div style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; min-height: 0;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;">
 
           <!-- Stats moved here -->
           <div class="glass-panel">
@@ -202,16 +177,16 @@
               </div>
               <div class="stat-card"
                 style="flex: 1 1 100%; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <button class="btn btn-primary" onclick="switchView('users')"
-                  style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;">
+                <a href="users.php" class="btn btn-primary"
+                  style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
-                  Manage System Users (Privacy)
-                </button>
+                  Manage System Users
+                </a>
               </div>
             </div>
           </div>
@@ -243,22 +218,14 @@
 
     <!-- VIEW: HISTORY -->
     <div id="view-history" class="view-section hidden">
-      <div class="glass-panel responsive-flex" style="margin-top: 1rem; padding: 2rem; flex-direction: column;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h3 style="margin: 0; font-size: 1.5rem;">Transaction History</h3>
-          <div style="display: flex; gap: 0.75rem;">
-            <div style="position: relative;">
-              <svg
-                style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"
-                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-              <input type="text" id="history-search" class="input-field" placeholder="Search..."
-                style="width: 200px; padding-left: 2rem; margin-bottom: 0;">
-            </div>
-            <button class="btn btn-text" onclick="clearHistory()"
-              style="color: var(--danger-color); font-size: 0.85rem;">Clear All</button>
+      <div class="glass-panel"
+        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>Full Transaction History</h3>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="history-search" class="input-field" placeholder="Search history..."
+              style="width: 250px;">
+            <button class="btn btn-danger" onclick="clearHistory()" style="padding: 0.5rem 1rem;">Clear History</button>
           </div>
         </div>
 
@@ -285,224 +252,198 @@
 
     <!-- VIEW: ITEM RATES -->
     <div id="view-notes" class="view-section hidden">
-      <div class="glass-panel responsive-flex" style="margin-top: 1rem; padding: 2rem; flex-direction: column;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h3 style="margin: 0; font-size: 1.5rem;">Price Tracking (Item Rates)</h3>
-          <button class="btn-icon" onclick="fetchPriceNotes()" title="Refresh">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 2v6h-6" />
-              <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-              <path d="M3 22v-6h6" />
-              <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-            </svg>
-          </button>
+      <div class="glass-panel"
+        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>Item Rates (Min/Max Avg)</h3>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-icon" onclick="fetchPriceNotes()" title="Refresh Rates">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+            </button>
+          </div>
         </div>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-        </svg>
-        </button>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+          <form id="add-note-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; flex: 1;">
+            <input type="hidden" id="note-id">
+            <datalist id="product-names-list"></datalist>
+
+            <div style="flex: 2; min-width: 200px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Item
+                Name</label>
+              <input type="text" id="note-item-name" placeholder="Enter item name..." class="input-field"
+                list="product-names-list" required>
+            </div>
+
+            <div style="width: 140px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Min
+                Rate</label>
+              <input type="text" inputmode="decimal" id="note-min-price" placeholder="0.00" class="input-field"
+                required>
+            </div>
+
+            <div style="width: 140px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Max
+                Rate</label>
+              <input type="text" inputmode="decimal" id="note-max-price" placeholder="0.00" class="input-field"
+                required>
+            </div>
+
+            <button type="submit" id="add-note-btn" class="btn btn-primary"
+              style="width: auto; padding: 0.75rem 2rem;">Add Rate</button>
+          </form>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto;">
+          <table style="width: 100%; border-collapse: collapse; color: var(--text-primary);">
+            <thead style="position: sticky; top: 0; background: var(--bg-dark); z-index: 10;">
+              <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+                <th style="padding: 1rem;">Item Name</th>
+                <th style="padding: 1rem;">Min Avg Rate</th>
+                <th style="padding: 1rem;">Max Avg Rate</th>
+                <th style="padding: 1rem;">Last Updated</th>
+                <th style="padding: 1rem;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="notes-table-body">
+              <!-- notes injected by JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-      <form id="add-note-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; flex: 1;">
-        <input type="hidden" id="note-id">
-        <datalist id="product-names-list"></datalist>
-
-        <div style="flex: 2; min-width: 200px;">
-          <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Item
-            Name</label>
-          <input type="text" id="note-item-name" placeholder="Enter item name..." class="input-field"
-            list="product-names-list" required>
+    <!-- VIEW: USERS -->
+    <div id="view-users" class="view-section hidden">
+      <div class="glass-panel"
+        style="margin-top: 1rem; padding: 1.5rem; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h3>User Management</h3>
+          <a href="users.php" class="btn btn-text" style="color: var(--text-accent); text-decoration: underline;">Open
+            Standalone User Page</a>
         </div>
 
-        <div style="width: 140px;">
-          <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Min
-            Rate</label>
-          <input type="text" inputmode="decimal" id="note-min-price" placeholder="0.00" class="input-field" required>
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+          <form id="add-user-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; flex: 1;">
+            <input type="hidden" id="manage-user-id">
+
+            <div style="flex: 2; min-width: 150px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Username</label>
+              <input type="text" id="manage-user-username" placeholder="Username" class="input-field" required>
+            </div>
+
+            <div style="flex: 2; min-width: 150px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Password</label>
+              <input type="password" id="manage-user-password" placeholder="Leave blank to keep same"
+                class="input-field">
+            </div>
+
+            <div style="width: 140px;">
+              <label
+                style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Role</label>
+              <select id="manage-user-role" class="input-field" required>
+                <option value="shop">Shop</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <button type="submit" id="save-user-btn" class="btn btn-primary"
+              style="width: auto; padding: 0.75rem 2rem;">Add User</button>
+            <button type="button" id="cancel-user-edit" class="btn hidden"
+              style="width: auto; padding: 0.75rem 2rem; background: var(--bg-hover);">Cancel</button>
+          </form>
         </div>
 
-        <div style="width: 140px;">
-          <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Max
-            Rate</label>
-          <input type="text" inputmode="decimal" id="note-max-price" placeholder="0.00" class="input-field" required>
+        <div style="flex: 1; overflow-y: auto;">
+          <table style="width: 100%; border-collapse: collapse; color: var(--text-primary);">
+            <thead style="position: sticky; top: 0; background: var(--bg-dark); z-index: 10;">
+              <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+                <th style="padding: 1rem;">Username</th>
+                <th style="padding: 1rem;">Role</th>
+                <th style="padding: 1rem;">Created At</th>
+                <th style="padding: 1rem;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <!-- users injected by JS -->
+            </tbody>
+          </table>
         </div>
-
-        <button type="submit" id="add-note-btn" class="btn btn-primary" style="width: auto; padding: 0.75rem 2rem;">Add
-          Rate</button>
-      </form>
-    </div>
-
-    <div style="flex: 1; overflow-y: auto;">
-      <table style="width: 100%; border-collapse: collapse; color: var(--text-primary);">
-        <thead style="position: sticky; top: 0; background: var(--bg-dark); z-index: 10;">
-          <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
-            <th style="padding: 1rem;">Item Name</th>
-            <th style="padding: 1rem;">Min Avg Rate</th>
-            <th style="padding: 1rem;">Max Avg Rate</th>
-            <th style="padding: 1rem;">Last Updated</th>
-            <th style="padding: 1rem;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="notes-table-body">
-          <!-- notes injected by JS -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-  </div>
-
-  <!-- VIEW: USERS -->
-  <div id="view-users" class="view-section hidden">
-    <div class="glass-panel responsive-flex" style="margin-top: 1rem; padding: 1.5rem; flex-direction: column;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h3>User Management</h3>
-        <a href="users.php" class="btn btn-text" style="color: var(--text-accent); text-decoration: underline;">Open
-          Standalone User Page</a>
       </div>
+    </div>
 
-      <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-        <form id="add-user-form" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; flex: 1;">
-          <input type="hidden" id="manage-user-id">
-
-          <div style="flex: 2; min-width: 150px;">
-            <label class="input-label">Username</label>
-            <input type="text" id="manage-user-username" placeholder="Username" class="input-field" required>
+    <!-- Modal: Transfer Stock -->
+    <div class="modal" id="transfer-modal">
+      <div class="glass-panel" style="width: 350px; padding: 2rem; background: #0f172a;">
+        <h2 style="margin-bottom: 1rem;">Transfer to Shop</h2>
+        <p id="transfer-item-name" style="color: var(--text-accent); margin-bottom: 1.5rem; font-weight: 600;"></p>
+        <form id="transfer-form">
+          <input type="hidden" id="transfer-product-id">
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Quantity to move</label>
+            <input type="number" id="transfer-qty" class="input-field" min="1" required>
           </div>
-
-          <div style="flex: 2; min-width: 150px;">
-            <label class="input-label">Password</label>
-            <input type="password" id="manage-user-password" placeholder="Leave blank to keep same" class="input-field">
+          <p id="transfer-max-hint" style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+          </p>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="button" class="btn" style="background: var(--bg-hover);"
+              onclick="closeModal('transfer-modal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Complete Transfer</button>
           </div>
-
-          <div style="width: 140px;">
-            <label class="input-label">Role</label>
-            <select id="manage-user-role" class="input-field" required>
-              <option value="shop">Shop</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
-          <button type="submit" id="save-user-btn" class="btn btn-primary"
-            style="width: auto; padding: 0.75rem 2rem;">Add User</button>
-          <button type="button" id="cancel-user-edit" class="btn hidden"
-            style="width: auto; padding: 0.75rem 2rem; background: var(--bg-hover);">Cancel</button>
         </form>
       </div>
+    </div>
 
-      <div style="flex: 1; overflow-y: auto;">
-        <table style="width: 100%; border-collapse: collapse; color: var(--text-primary);">
-          <thead style="position: sticky; top: 0; background: var(--bg-dark); z-index: 10;">
-            <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
-              <th style="padding: 1rem;">Username</th>
-              <th style="padding: 1rem;">Role</th>
-              <th style="padding: 1rem;">Created At</th>
-              <th style="padding: 1rem;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="users-table-body">
-            <!-- users injected by JS -->
-          </tbody>
-        </table>
+    <!-- Modal: Add Product -->
+    <div class="modal" id="add-product-modal">
+      <div class="glass-panel" style="width: 400px; padding: 2rem; background: #0f172a;">
+        <h2 style="margin-bottom: 1.5rem;">Add New Steel</h2>
+        <form id="add-product-form">
+          <input type="hidden" id="new-id">
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Type</label>
+            <input type="text" id="new-type" class="input-field" placeholder="e.g. H-Beam" required>
+          </div>
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Name</label>
+            <input type="text" id="new-name" class="input-field" placeholder="e.g. H-Beam 200" required>
+          </div>
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Dimensions</label>
+            <input type="text" id="new-dim" class="input-field" placeholder="e.g. 200x200mm, 300x300mm">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="input-group">
+              <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Qty</label>
+              <input type="number" id="new-qty" class="input-field" required>
+            </div>
+            <div class="input-group">
+              <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Buy Price</label>
+              <input type="number" step="0.01" id="new-buy-price" class="input-field" placeholder="Cost" required>
+            </div>
+            <div class="input-group">
+              <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Sell Price</label>
+              <input type="number" step="0.01" id="new-sell-price" class="input-field" placeholder="Sale" required>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="button" class="btn" style="background: var(--bg-hover);"
+              onclick="closeModal('add-product-modal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Product</button>
+          </div>
+        </form>
       </div>
     </div>
-  </div>
-
-  <!-- Modal: Transfer Stock -->
-  <div class="modal" id="transfer-modal">
-    <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 2.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h2 style="margin: 0; font-size: 1.5rem;">Move to Shop</h2>
-        <button class="btn-icon-raw" onclick="closeModal('transfer-modal')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <p id="transfer-item-name"
-        style="color: var(--text-accent); margin-bottom: 1.5rem; font-weight: 700; text-align: center; font-size: 1.1rem;">
-      </p>
-
-      <form id="transfer-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <input type="hidden" id="transfer-product-id">
-        <div class="input-group">
-          <label class="input-label">How many items?</label>
-          <input type="number" id="transfer-qty" class="input-field" min="1" required
-            style="font-size: 1.5rem; text-align: center; padding: 1rem; border-color: var(--primary-color);">
-          <p id="transfer-max-hint"
-            style="font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-top: 0.5rem;"></p>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1.1rem; font-size: 1.1rem;">Complete
-          Move</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal: Add Product -->
-  <div class="modal" id="add-product-modal">
-    <div class="glass-panel" style="width: 100%; max-width: 450px; padding: 2.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h2 id="modal-title" style="margin: 0; font-size: 1.5rem;">Product Details</h2>
-        <button class="btn-icon-raw" onclick="closeModal('add-product-modal')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <form id="add-product-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
-        <input type="hidden" id="new-id">
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="input-group">
-            <label class="input-label">Type / Category</label>
-            <input type="text" id="new-type" class="input-field" placeholder="H-Beam" required>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Dimensions</label>
-            <input type="text" id="new-dim" class="input-field" placeholder="200x200mm">
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label class="input-label">Product Name</label>
-          <input type="text" id="new-name" class="input-field" placeholder="e.g. H-Beam 200 Heavy" required>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="input-group">
-            <label class="input-label">Initial Stock</label>
-            <input type="number" id="new-qty" class="input-field" placeholder="0" required>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Store Qty</label>
-            <input type="number" id="new-store-qty" class="input-field" value="0">
-          </div>
-        </div>
-
-        <div
-          style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
-          <div class="input-group">
-            <label class="input-label">Buy Price ($)</label>
-            <input type="number" step="0.01" id="new-buy-price" class="input-field" placeholder="0.00" required>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Sell Price ($)</label>
-            <input type="number" step="0.01" id="new-sell-price" class="input-field" placeholder="0.00" required>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary"
-          style="width: 100%; padding: 1.1rem; margin-top: 1rem; font-size: 1.1rem;">Save Changes</button>
-      </form>
-    </div>
-  </div>
   </div> <!-- This closes #app -->
 
-  <script src="script.js?v=1.1.1"></script>
+  <script src="script.js?v=1.0.9"></script>
 </body>
 
 </html>

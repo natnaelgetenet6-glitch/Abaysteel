@@ -222,7 +222,6 @@ function getFilteredProducts(searchText, typeFilter, sizeFilter) {
 // --- SHOP LOGIC ---
 let selectedProductType = null; // Track selected product type
 
-// --- SHOP LOGIC ---
 function renderShop() {
     shopList.innerHTML = '';
     const filtered = getFilteredProducts(shopSearch.value, shopTypeFilter.value, shopSizeFilter.value);
@@ -396,42 +395,38 @@ function renderSizeSelector() {
 // --- MANAGEMENT LOGIC ---
 function renderManagement() {
     mgmtList.innerHTML = '';
-    const searchText = mgmtSearch.value.toLowerCase();
-
-    const filtered = products.filter(p =>
-        p.name.toLowerCase().includes(searchText) ||
-        p.type.toLowerCase().includes(searchText) ||
-        (p.dimensions && p.dimensions.toLowerCase().includes(searchText))
-    );
+    const filtered = getFilteredProducts(mgmtSearch.value, null, null);
 
     if (filtered.length === 0) {
-        mgmtList.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">No items found</td></tr>';
+        mgmtList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">No items found</td></tr>';
         return;
     }
 
-    filtered.forEach(p => {
-        const isLowStock = p.stock_quantity <= (p.min_stock_level || 5);
+    filtered.forEach(product => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td style="padding-left: 1rem; font-weight: 600;">${p.name}</td>
-            <td>${p.type}</td>
-            <td style="color: var(--text-accent); font-weight: 600;">${p.dimensions || '-'}</td>
-            <td style="opacity: 0.8;">$${Number(p.buy_price).toFixed(2)}</td>
-            <td style="font-weight: 700; color: var(--text-accent);">$${Number(p.sell_price).toFixed(2)}</td>
-            <td style="font-weight: 700; color: ${isLowStock ? 'var(--danger-color)' : 'var(--success-color)'}">${p.stock_quantity} ${p.unit || 'pcs'}</td>
-            <td style="font-weight: 700; color: var(--text-accent);">${p.shop_quantity || 0}</td>
+            <td>${product.name}</td>
+            <td><span style="font-size:0.8rem; opacity:0.7;">${product.type} / ${product.dimensions}</span></td>
+            <td>B:$${Number(product.buy_price).toFixed(2)} / S:$${Number(product.sell_price).toFixed(2)}</td>
+            <td style="color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'inherit'}">${product.stock_quantity}</td>
+            <td style="color: var(--text-accent); font-weight: 600;">${product.shop_quantity || 0}</td>
             <td>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn-icon" onclick="openTransferModal(${p.id})" title="Move to Shop">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 13l5 5 5-5"/></svg>
-                    </button>
-                    <button class="btn-icon" onclick="editProduct(${p.id})" title="Edit">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                    </button>
-                    <button class="btn-icon" onclick="deleteProduct(${p.id})" style="color: var(--danger-color)" title="Delete">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
-                </div>
+                <button onclick="openTransferModal(${product.id})" 
+                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
+                    Move to Shop
+                </button>
+            </td>
+            <td>
+                <button onclick="deleteProduct(${product.id})" 
+                    style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
+                    Delete
+                </button>
+            </td>
+            <td>
+                <button onclick="editProduct(${product.id})" 
+                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
+                    Edit
+                </button>
             </td>
         `;
         mgmtList.appendChild(tr);
@@ -914,7 +909,7 @@ async function deleteUser(id) {
 // Event Listeners
 shopSearch.addEventListener('input', () => renderShop());
 shopTypeFilter.addEventListener('change', () => {
-    selectedProductType = null;
+    shopSizeFilter.value = '';
     renderSizeSelector();
     renderShop();
 });
@@ -954,11 +949,8 @@ function editProduct(id) {
     document.getElementById('new-name').value = product.name;
     document.getElementById('new-dim').value = product.dimensions;
     document.getElementById('new-qty').value = product.stock_quantity;
-    document.getElementById('new-store-qty').value = product.main_store_quantity || 0;
     document.getElementById('new-buy-price').value = product.buy_price;
     document.getElementById('new-sell-price').value = product.sell_price;
-
-    document.getElementById('modal-title').textContent = 'Edit Product';
 
     // Update Modal Title and Button
     document.querySelector('#add-product-modal h2').textContent = 'Edit Steel';
@@ -983,23 +975,22 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
     const name = document.getElementById('new-name').value;
     const type = document.getElementById('new-type').value;
     const dimInput = document.getElementById('new-dim').value;
-    const qty = parseInt(document.getElementById('new-qty').value) || 0;
-    const storeQty = parseInt(document.getElementById('new-store-qty').value) || 0;
+    const qty = parseInt(document.getElementById('new-qty').value);
     const buyPrice = parseFloat(document.getElementById('new-buy-price').value) || 0;
-    const sellPrice = parseFloat(document.getElementById('new-sell-price').value) || 0;
+    const sellPrice = parseFloat(document.getElementById('new-sell-price').value);
 
     // Support comma-separated dimensions for bulk add
     let dimensions = dimInput.split(',').map(d => d.trim()).filter(d => d);
-    if (dimensions.length === 0) dimensions = [''];
+    if (dimensions.length === 0) dimensions = ['']; // Allow adding even without dimensions
 
     try {
         if (id) {
-            // Update Mode
+            // Update Mode: Single request, no splitting
             const res = await fetch(`${API_URL}/products.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id, name, type, dimensions: dimInput.trim(), quantity: qty, storeQuantity: storeQty, buyPrice, sellPrice
+                    id, name, type, dimensions: dimInput.trim(), quantity: qty, buyPrice, sellPrice
                 })
             });
             const data = await res.json();
@@ -1009,25 +1000,44 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
                 alert('Failed to update: ' + (data.error || 'Unknown error'));
             }
         } else {
-            // Add Mode
+            // Add Mode: potential bulk add
             let successCount = 0;
+            let lastError = null;
+
+            // Post each dimension as a separate product
             for (const dim of dimensions) {
                 const res = await fetch(`${API_URL}/products.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        name, type, dimensions: dim, quantity: qty, storeQuantity: storeQty, buyPrice, sellPrice
+                        name, type, dimensions: dim, quantity: qty, buyPrice, sellPrice
                     })
                 });
-                if (res.ok) successCount++;
+
+                if (res.ok) {
+                    successCount++;
+                } else {
+                    const errData = await res.json();
+                    lastError = errData.error || 'Unknown error';
+                }
             }
-            alert(`Successfully added ${successCount} products!`);
+
+            if (successCount === dimensions.length) {
+                alert('Product(s) added successfully!');
+            } else if (successCount > 0) {
+                alert(`Added ${successCount} items, but some failed: ${lastError}`);
+            } else {
+                alert(`Failed to add product: ${lastError}`);
+            }
         }
+
         closeModal('add-product-modal');
-        await fetchProducts();
+        e.target.reset();
+        await fetchProducts(); // Refresh list
+
     } catch (err) {
         console.error('Error saving product:', err);
-        alert('An error occurred while saving.');
+        alert('Error saving product: Network Error');
     }
 });
 
