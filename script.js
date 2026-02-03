@@ -58,7 +58,7 @@ async function fetchProducts() {
         products = await res.json();
         renderShop();
         renderManagement();
-        renderTypeSelector();
+        renderCategoryTabs();
         renderProductDatalist();
     } catch (err) {
         console.error('Error fetching products:', err);
@@ -222,211 +222,121 @@ function getFilteredProducts(searchText, typeFilter, sizeFilter) {
 // --- SHOP LOGIC ---
 let selectedProductType = null; // Track selected product type
 
+// --- SHOP LOGIC (Simplified) ---
 function renderShop() {
+    if (!shopList) return;
     shopList.innerHTML = '';
     const filtered = getFilteredProducts(shopSearch.value, shopTypeFilter.value, shopSizeFilter.value);
 
     if (filtered.length === 0) {
-        shopList.innerHTML = '<p style="color:var(--text-secondary); text-align:center; grid-column: 1/-1;">No items found</p>';
+        shopList.innerHTML = '<p style="color:var(--text-secondary); text-align:center; grid-column: 1/-1; padding: 3rem;">No items found. Try a different search or category.</p>';
         return;
     }
 
-    // Group products by type
-    const groupedByType = {};
     filtered.forEach(product => {
-        const key = product.type;
-        if (!groupedByType[key]) {
-            groupedByType[key] = [];
-        }
-        groupedByType[key].push(product);
-    });
+        const card = document.createElement('div');
+        const isLowStock = product.stock_quantity <= (product.min_stock_level || 5);
+        card.className = `product-card ${isLowStock ? 'low-stock' : ''}`;
 
-    const visibleTypes = Object.keys(groupedByType).sort();
-
-    // Auto-select if only one type is visible or if typed in filter
-    if (visibleTypes.length === 1) {
-        selectedProductType = visibleTypes[0];
-    }
-    // If selected type is no longer visible, deselect
-    else if (selectedProductType && !groupedByType[selectedProductType]) {
-        selectedProductType = null;
-    }
-
-    // Create two-panel layout
-    const leftPanel = document.createElement('div');
-    leftPanel.className = 'items-panel';
-    leftPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">SELECT ITEM</h4>';
-
-    const rightPanel = document.createElement('div');
-    rightPanel.className = 'sizes-panel';
-    rightPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>';
-    rightPanel.id = 'sizes-panel-content';
-
-    // Render items in left panel
-    visibleTypes.forEach(type => {
-        const itemCard = document.createElement('div');
-        itemCard.className = `item-selector-card ${selectedProductType === type ? 'selected' : ''}`;
-
-        // Pass event explicitly
-        itemCard.onclick = (e) => selectProductType(type, groupedByType[type], e);
-
-        const products = groupedByType[type];
-        const totalShopStock = products.reduce((sum, p) => sum + (p.shop_quantity || 0), 0);
-        const sizeCount = products.length;
-
-        itemCard.innerHTML = `
-            <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;">${type}</div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                ${sizeCount} size${sizeCount > 1 ? 's' : ''} • Shop Stock: ${totalShopStock}
+        card.innerHTML = `
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div class="product-name" style="font-weight: 700; font-size: 1.1rem;">${product.name}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${product.type} ${product.dimensions || ''}</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 1rem;">
+                    <div style="font-size: 0.85rem; color: ${isLowStock ? 'var(--danger-color)' : 'var(--text-secondary)'};">
+                        Stock: <strong>${product.stock_quantity}</strong>
+                    </div>
+                    <div class="product-price" style="font-size: 1.25rem; font-weight: 700; color: var(--text-accent);">$${parseFloat(product.sell_price).toFixed(2)}</div>
+                </div>
             </div>
         `;
-        leftPanel.appendChild(itemCard);
+
+        card.onclick = () => addToCart(product.id);
+        shopList.appendChild(card);
     });
+}
 
-    // Add panels to shop list
-    shopList.appendChild(leftPanel);
-    shopList.appendChild(rightPanel);
+function renderCategoryTabs() {
+    const categories = [...new Set(products.map(p => p.type))].filter(Boolean).sort();
+    const container = document.getElementById('shop-category-tabs');
+    if (!container) return;
 
-    // Initial render of right panel if selection exists
-    if (selectedProductType && groupedByType[selectedProductType]) {
-        renderSizesPanel(groupedByType[selectedProductType]);
-    } else {
-        document.getElementById('sizes-panel-content').innerHTML = `
-            <h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>
-            <div style="flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; color:var(--text-secondary); opacity:0.7;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;">
-                    <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/>
-                    <path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/>
-                    <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h2v-4h-2z"/>
-                </svg>
-                <p>Select an item to view sizes</p>
-            </div>
-        `;
+    const currentType = shopTypeFilter ? shopTypeFilter.value : '';
+
+    let html = `<button class="tab ${!currentType ? 'active' : ''}" onclick="filterByCategory('')">All Items</button>`;
+    categories.forEach(cat => {
+        html += `<button class="tab ${currentType === cat ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</button>`;
+    });
+    container.innerHTML = html;
+}
+
+window.filterByCategory = function (type) {
+    if (shopTypeFilter) {
+        shopTypeFilter.value = type;
+        renderShop();
+        renderCategoryTabs();
     }
-}
-
-function selectProductType(type, products, event) {
-    selectedProductType = type;
-
-    // Update visual selection
-    const allCards = document.querySelectorAll('.item-selector-card');
-    allCards.forEach(card => card.classList.remove('selected'));
-
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('selected');
-    }
-
-    // Render sizes in right panel
-    renderSizesPanel(products);
-}
-
-function renderSizesPanel(products) {
-    const sizesPanel = document.getElementById('sizes-panel-content');
-    sizesPanel.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">AVAILABLE SIZES</h4>';
-
-    // Group by size
-    const groupedBySize = {};
-    products.forEach(product => {
-        const size = product.dimensions;
-        if (!groupedBySize[size]) {
-            groupedBySize[size] = [];
-        }
-        groupedBySize[size].push(product);
-    });
-
-    // Render each size
-    Object.keys(groupedBySize).sort().forEach(size => {
-        const sizeProducts = groupedBySize[size];
-
-        sizeProducts.forEach(product => {
-            const el = document.createElement('div');
-            el.className = `product-card ${(product.shop_quantity || 0) < 5 ? 'low-stock' : ''}`;
-            el.onclick = () => addToCart(product.id);
-            el.innerHTML = `
-                <div class="product-header">
-                    <span class="product-name">${product.name}</span>
-                    <span class="product-price">$${Number(product.sell_price).toFixed(2)}</span>
-                </div>
-                <div class="product-details">
-                    <span style="font-weight: 600; color: var(--text-accent);">Size: ${product.dimensions}</span>
-                    <span style="font-weight: 600; color: ${(product.shop_quantity || 0) < 5 ? 'var(--danger-color)' : 'var(--success-color)'}">
-                        Shop Stock: ${product.shop_quantity || 0} ${product.unit || 'pcs'}
-                    </span>
-                </div>
-            `;
-            sizesPanel.appendChild(el);
-        });
-    });
-}
-
-function renderTypeSelector() {
-    const types = [...new Set(products.map(p => p.type))].sort();
-    const current = shopTypeFilter.value;
-    shopTypeFilter.innerHTML = '<option value="">All Types</option>';
-    types.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t;
-        opt.textContent = t;
-        shopTypeFilter.appendChild(opt);
-    });
-    shopTypeFilter.value = current;
-}
-
-function renderSizeSelector() {
-    const typeFilter = shopTypeFilter.value;
-    shopSizeFilter.innerHTML = '<option value="">All Sizes</option>';
-    if (!typeFilter) {
-        shopSizeFilter.disabled = true;
-        return;
-    }
-    shopSizeFilter.disabled = false;
-    const sizes = [...new Set(products
-        .filter(p => p.type === typeFilter)
-        .map(p => p.dimensions)
-    )].sort();
-    sizes.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        shopSizeFilter.appendChild(opt);
-    });
-}
+};
 
 // --- MANAGEMENT LOGIC ---
 function renderManagement() {
     mgmtList.innerHTML = '';
-    const filtered = getFilteredProducts(mgmtSearch.value, null, null);
+    const searchText = mgmtSearch.value.toLowerCase();
+
+    const filtered = products.filter(p =>
+        p.name.toLowerCase().includes(searchText) ||
+        p.type.toLowerCase().includes(searchText) ||
+        (p.dimensions && p.dimensions.toLowerCase().includes(searchText))
+    );
 
     if (filtered.length === 0) {
-        mgmtList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary);">No items found</td></tr>';
+        mgmtList.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-secondary); padding: 2rem;">No items found</td></tr>';
         return;
     }
 
-    filtered.forEach(product => {
+    filtered.forEach(p => {
+        const isLowStock = p.stock_quantity <= (p.min_stock_level || 5);
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${product.name}</td>
-            <td><span style="font-size:0.8rem; opacity:0.7;">${product.type} / ${product.dimensions}</span></td>
-            <td>B:$${Number(product.buy_price).toFixed(2)} / S:$${Number(product.sell_price).toFixed(2)}</td>
-            <td style="color: ${product.stock_quantity < 10 ? 'var(--danger-color)' : 'inherit'}">${product.stock_quantity}</td>
-            <td style="color: var(--text-accent); font-weight: 600;">${product.shop_quantity || 0}</td>
-            <td>
-                <button onclick="openTransferModal(${product.id})" 
-                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
-                    Move to Shop
-                </button>
+            <td style="padding-left: 1rem;">
+                <div style="font-weight: 700; font-size: 1rem;">${p.name}</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">${p.type} ${p.dimensions || ''}</div>
             </td>
             <td>
-                <button onclick="deleteProduct(${product.id})" 
-                    style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
-                    Delete
-                </button>
+                <div style="font-size: 0.85rem; opacity: 0.8;">Buy: $${parseFloat(p.buy_price).toFixed(2)}</div>
+                <div style="font-size: 0.85rem; color: var(--text-accent); font-weight: 600;">Sell: $${parseFloat(p.sell_price).toFixed(2)}</div>
             </td>
             <td>
-                <button onclick="editProduct(${product.id})" 
-                    style="background:none; border: 1px solid var(--primary-color); color:var(--primary-color); cursor:pointer; font-size: 0.75rem; padding: 2px 7px; border-radius: 4px;">
-                    Edit
-                </button>
+                <span style="background: rgba(255, 255, 255, 0.05); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                    ${p.main_store_quantity}
+                </span>
+            </td>
+            <td style="color: ${isLowStock ? 'var(--danger-color)' : 'inherit'}; font-weight: ${isLowStock ? '700' : '400'};">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    ${isLowStock ? '<span style="width: 8px; height: 8px; background: var(--danger-color); border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--danger-color);"></span>' : ''}
+                    ${p.stock_quantity}
+                </div>
+            </td>
+            <td style="color: var(--text-accent); font-weight: 600;">
+                ${p.shop_quantity || 0}
+            </td>
+            <td>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-icon" onclick="openTransferModal(${p.id})" title="Transfer to Shop">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 13l5 5 5-5"/></svg>
+                    </button>
+                    <button class="btn-icon" onclick="editProduct(${p.id})" title="Edit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    </button>
+                    <button class="btn-icon" onclick="deleteProduct(${p.id})" style="color: var(--danger-color)" title="Delete">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
             </td>
         `;
         mgmtList.appendChild(tr);
@@ -910,8 +820,8 @@ async function deleteUser(id) {
 shopSearch.addEventListener('input', () => renderShop());
 shopTypeFilter.addEventListener('change', () => {
     shopSizeFilter.value = '';
-    renderSizeSelector();
     renderShop();
+    renderCategoryTabs();
 });
 shopSizeFilter.addEventListener('change', () => renderShop());
 mgmtSearch.addEventListener('input', () => renderManagement());
@@ -949,8 +859,11 @@ function editProduct(id) {
     document.getElementById('new-name').value = product.name;
     document.getElementById('new-dim').value = product.dimensions;
     document.getElementById('new-qty').value = product.stock_quantity;
+    document.getElementById('new-store-qty').value = product.main_store_quantity || 0;
     document.getElementById('new-buy-price').value = product.buy_price;
     document.getElementById('new-sell-price').value = product.sell_price;
+
+    document.getElementById('modal-title').textContent = 'Edit Product';
 
     // Update Modal Title and Button
     document.querySelector('#add-product-modal h2').textContent = 'Edit Steel';
@@ -975,22 +888,23 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
     const name = document.getElementById('new-name').value;
     const type = document.getElementById('new-type').value;
     const dimInput = document.getElementById('new-dim').value;
-    const qty = parseInt(document.getElementById('new-qty').value);
+    const qty = parseInt(document.getElementById('new-qty').value) || 0;
+    const storeQty = parseInt(document.getElementById('new-store-qty').value) || 0;
     const buyPrice = parseFloat(document.getElementById('new-buy-price').value) || 0;
-    const sellPrice = parseFloat(document.getElementById('new-sell-price').value);
+    const sellPrice = parseFloat(document.getElementById('new-sell-price').value) || 0;
 
     // Support comma-separated dimensions for bulk add
     let dimensions = dimInput.split(',').map(d => d.trim()).filter(d => d);
-    if (dimensions.length === 0) dimensions = ['']; // Allow adding even without dimensions
+    if (dimensions.length === 0) dimensions = [''];
 
     try {
         if (id) {
-            // Update Mode: Single request, no splitting
+            // Update Mode
             const res = await fetch(`${API_URL}/products.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id, name, type, dimensions: dimInput.trim(), quantity: qty, buyPrice, sellPrice
+                    id, name, type, dimensions: dimInput.trim(), quantity: qty, storeQuantity: storeQty, buyPrice, sellPrice
                 })
             });
             const data = await res.json();
@@ -1000,44 +914,25 @@ document.getElementById('add-product-form').addEventListener('submit', async (e)
                 alert('Failed to update: ' + (data.error || 'Unknown error'));
             }
         } else {
-            // Add Mode: potential bulk add
+            // Add Mode
             let successCount = 0;
-            let lastError = null;
-
-            // Post each dimension as a separate product
             for (const dim of dimensions) {
                 const res = await fetch(`${API_URL}/products.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        name, type, dimensions: dim, quantity: qty, buyPrice, sellPrice
+                        name, type, dimensions: dim, quantity: qty, storeQuantity: storeQty, buyPrice, sellPrice
                     })
                 });
-
-                if (res.ok) {
-                    successCount++;
-                } else {
-                    const errData = await res.json();
-                    lastError = errData.error || 'Unknown error';
-                }
+                if (res.ok) successCount++;
             }
-
-            if (successCount === dimensions.length) {
-                alert('Product(s) added successfully!');
-            } else if (successCount > 0) {
-                alert(`Added ${successCount} items, but some failed: ${lastError}`);
-            } else {
-                alert(`Failed to add product: ${lastError}`);
-            }
+            alert(`Successfully added ${successCount} products!`);
         }
-
         closeModal('add-product-modal');
-        e.target.reset();
-        await fetchProducts(); // Refresh list
-
+        await fetchProducts();
     } catch (err) {
         console.error('Error saving product:', err);
-        alert('Error saving product: Network Error');
+        alert('An error occurred while saving.');
     }
 });
 
