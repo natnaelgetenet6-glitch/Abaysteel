@@ -30,8 +30,14 @@ body {
     color: var(--text-primary);
     font-family: var(--font-body);
     height: 100vh;
+    height: 100dvh;
+    /* Dynamic viewport height for mobile browsers on windows */
     display: flex;
     overflow: hidden;
+    scrollbar-width: thin;
+    /* Firefox */
+    scrollbar-color: #475569 transparent;
+    /* Firefox */
 }
 
 /* Typography */
@@ -357,16 +363,27 @@ header {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 14px;
+    /* Even wider */
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-hover);
-    border-radius: 3px;
+    background: var(--primary-color);
+    /* Bright Blue */
+    border-radius: 10px;
+    border: 3px solid #0f172a;
+    /* Match background to create "floating" effect */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.2);
 }
 
 /* Modal */
