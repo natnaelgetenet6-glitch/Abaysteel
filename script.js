@@ -936,9 +936,13 @@ document.getElementById('note-item-name').addEventListener('input', (e) => {
     }
 });
 
+// Use == for loose equality to handle string/number ID differences
 function editProduct(id) {
-    const product = products.find(p => p.id === id);
-    if (!product) return;
+    const product = products.find(p => p.id == id);
+    if (!product) {
+        console.error('Product not found for edit:', id);
+        return;
+    }
 
     document.getElementById('new-id').value = product.id;
     document.getElementById('new-type').value = product.type;
@@ -956,7 +960,7 @@ function editProduct(id) {
 }
 
 // Reset form when opening for "Add"
-window.openAddProductModal = function () {
+function openAddProductModal() {
     document.getElementById('add-product-form').reset();
     document.getElementById('new-id').value = '';
     document.querySelector('#add-product-modal h2').textContent = 'Add New Steel';
@@ -1241,6 +1245,7 @@ window.editPriceNote = editPriceNote;
 window.fetchPriceNotes = fetchPriceNotes;
 window.deleteHistoryItem = deleteHistoryItem;
 window.editProduct = editProduct;
+window.openAddProductModal = openAddProductModal;
 window.clearHistory = clearHistory;
 console.log('Script loaded. Window exports:', window.deleteProduct);
 
