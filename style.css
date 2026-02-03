@@ -172,6 +172,69 @@ header {
     animation: fadeIn 0.3s ease;
 }
 
+/* Management View Layout */
+#view-management {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.management-container {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.management-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+    min-height: 0;
+    flex: 1;
+}
+
+.management-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.items-section,
+.transactions-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 1.5rem;
+}
+
+.table-wrapper {
+    overflow-y: auto;
+    overflow-x: auto;
+    flex: 1;
+    min-height: 0;
+    margin-top: 0.5rem;
+    scrollbar-gutter: stable;
+}
+
+.stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.transactions-list {
+    margin-top: 1rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
 .hidden {
     display: none !important;
 }
@@ -574,12 +637,31 @@ header {
 @media (max-width: 768px) {
     body {
         font-size: 14px;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        min-height: 100vh;
     }
 
     #app {
         padding: 0.5rem;
         padding-top: 4rem;
         /* Make room for hamburger button */
+        height: auto !important;
+        min-height: 100vh;
+        overflow-x: hidden !important;
+    }
+
+    /* View sections - allow scrolling naturally with the page */
+    .view-section {
+        flex: none !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .view-section:not(.hidden) {
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     /* Show hamburger menu on mobile */
@@ -670,27 +752,44 @@ header {
         min-height: 350px;
     }
 
-    /* Management View */
+    /* Management View - Mobile Override */
     #view-management {
-        display: flex !important;
-        flex-direction: column !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
+        min-height: auto !important;
     }
 
-    #view-management>div {
-        grid-template-columns: 1fr !important;
+    .management-container {
         display: flex !important;
         flex-direction: column !important;
-        gap: 0.75rem;
-        margin-top: 0.5rem;
+        grid-template-columns: none !important;
+        min-height: auto !important;
         overflow: visible !important;
     }
 
-    #view-management>div>div {
+    .management-left,
+    .management-right {
         width: 100% !important;
         min-height: auto !important;
+        max-height: none !important;
         overflow: visible !important;
+        flex: none !important;
+    }
+
+    .items-section,
+    .transactions-section {
+        flex: none !important;
+        min-height: auto !important;
+        padding: 1rem !important;
+    }
+
+    .table-wrapper,
+    .transactions-list {
+        flex: none !important;
+        min-height: auto !important;
+        max-height: 400px;
+        /* Limit height on mobile for readability, allow scrolling */
+        overflow-y: auto !important;
     }
 
     /* Stats container - stack vertically */
