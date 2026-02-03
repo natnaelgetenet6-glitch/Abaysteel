@@ -131,6 +131,12 @@ header {
 .view-section {
     flex: 1;
     overflow: hidden;
+    display: flex;
+    /* Added */
+    flex-direction: column;
+    /* Added */
+    min-height: 0;
+    /* Important for firefox/flex scrolling */
     animation: fadeIn 0.3s ease;
 }
 
