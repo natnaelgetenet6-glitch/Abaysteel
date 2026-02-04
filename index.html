@@ -195,15 +195,15 @@
             <div class="stats-container">
               <div class="stat-card" style="flex: 1 1 100%;">
                 <span class="stat-label">Total Sales (Today)</span>
-                <span class="stat-value text-gradient" id="total-sales">$0.00</span>
+                <span class="stat-value text-gradient" id="total-sales">Birr 0.00</span>
               </div>
               <div class="stat-card" style="flex: 1 1 45%;">
                 <span class="stat-label">Expenses (Month)</span>
-                <span class="stat-value" id="total-expenses" style="color: var(--danger-color)">$0.00</span>
+                <span class="stat-value" id="total-expenses" style="color: var(--danger-color)">Birr 0.00</span>
               </div>
               <div class="stat-card" style="flex: 1 1 45%;">
                 <span class="stat-label">Net Income</span>
-                <span class="stat-value" id="net-income" style="color: var(--success-color)">$0.00</span>
+                <span class="stat-value" id="net-income" style="color: var(--success-color)">Birr 0.00</span>
               </div>
               <div class="stat-card"
                 style="flex: 1 1 100%; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
@@ -225,7 +225,7 @@
             <h3>Quick Expense</h3>
             <form id="expense-form" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
               <input type="text" id="expense-desc" placeholder="Rent, Utilities..." class="input-field" required>
-              <input type="number" id="expense-amount" placeholder="$0.00" class="input-field" style="width: 100px;"
+              <input type="number" id="expense-amount" placeholder="Birr 0.00" class="input-field" style="width: 100px;"
                 required>
               <button type="submit" class="btn btn-danger" style="width: auto;">Add</button>
             </form>
@@ -456,11 +456,13 @@
             </div>
             <div class="input-group">
               <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Buy Price</label>
-              <input type="number" step="0.01" id="new-buy-price" class="input-field" placeholder="Cost" required>
+              <input type="number" step="0.01" id="new-buy-price" class="input-field" placeholder="Cost (Birr)"
+                required>
             </div>
             <div class="input-group">
               <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Sell Price</label>
-              <input type="number" step="0.01" id="new-sell-price" class="input-field" placeholder="Sale" required>
+              <input type="number" step="0.01" id="new-sell-price" class="input-field" placeholder="Sale (Birr)"
+                required>
             </div>
           </div>
           <div style="display: flex; gap: 1rem; margin-top: 1rem;">

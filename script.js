@@ -83,9 +83,9 @@ async function fetchStats() {
     try {
         const res = await fetch(`${API_URL}/stats.php`);
         const stats = await res.json();
-        totalSalesEl.textContent = `$${(stats.todaySales || 0).toFixed(2)}`;
-        totalExpensesEl.textContent = `$${(stats.monthExpenses || 0).toFixed(2)}`;
-        netIncomeEl.textContent = `$${(stats.netIncome || 0).toFixed(2)}`;
+        totalSalesEl.textContent = `Birr ${(stats.todaySales || 0).toFixed(2)}`;
+        totalExpensesEl.textContent = `Birr ${(stats.monthExpenses || 0).toFixed(2)}`;
+        netIncomeEl.textContent = `Birr ${(stats.netIncome || 0).toFixed(2)}`;
         netIncomeEl.style.color = (stats.netIncome || 0) >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
     } catch (err) {
         console.error('Error fetching stats:', err);
@@ -382,7 +382,7 @@ function renderSizesPanel(products) {
             el.innerHTML = `
                 <div class="product-header">
                     <span class="product-name">${product.name}</span>
-                    <span class="product-price">$${Number(product.sell_price).toFixed(2)}</span>
+                    <span class="product-price">Birr ${Number(product.sell_price).toFixed(2)}</span>
                 </div>
                 <div class="product-details">
                     <span style="font-weight: 600; color: var(--text-accent);">Size: ${product.dimensions}</span>
@@ -452,8 +452,8 @@ function renderManagement() {
             <td style="padding-left: 1rem; font-weight: 600;">${p.name}</td>
             <td>${p.type}</td>
             <td style="color: var(--text-accent); font-weight: 600;">${p.dimensions || '-'}</td>
-            <td style="opacity: 0.8;">$${Number(p.buy_price).toFixed(2)}</td>
-            <td style="font-weight: 700; color: var(--text-accent);">$${Number(p.sell_price).toFixed(2)}</td>
+            <td style="opacity: 0.8;">Birr ${Number(p.buy_price).toFixed(2)}</td>
+            <td style="font-weight: 700; color: var(--text-accent);">Birr ${Number(p.sell_price).toFixed(2)}</td>
             <td style="font-weight: 700; color: ${isLowStock ? 'var(--danger-color)' : 'var(--success-color)'}">${p.stock_quantity} ${p.unit || 'pcs'}</td>
             <td style="font-weight: 700; color: var(--text-accent);">${p.shop_quantity || 0}</td>
             <td>
@@ -552,10 +552,10 @@ function renderCart() {
         el.innerHTML = `
             <div>
                 <div style="font-weight:600;">${item.product.name}</div>
-                <div style="font-size:0.85rem; color:var(--text-secondary);">$${price.toFixed(2)} x ${item.qty}</div>
+                <div style="font-size:0.85rem; color:var(--text-secondary);">Birr ${price.toFixed(2)} x ${item.qty}</div>
             </div>
             <div style="display:flex; align-items:center; gap:0.5rem;">
-                <span style="font-weight:700;">$${itemTotal.toFixed(2)}</span>
+                <span style="font-weight:700;">Birr ${itemTotal.toFixed(2)}</span>
                 <button onclick="removeFromCart(${index})" class="btn-icon" style="color:var(--danger-color);">&times;</button>
             </div>
         `;
@@ -650,14 +650,14 @@ function renderTransactions() {
                     <span style="color:var(--text-secondary); font-size:0.85rem; margin-left:0.5rem;">${new Date(t.date).toLocaleTimeString()}</span>
                     ${buyerInfo}
                 </div>
-                <div style="font-weight:600;">+$${Number(t.total).toFixed(2)}</div>
+                <div style="font-weight:600;">+Birr ${Number(t.total).toFixed(2)}</div>
             `;
         } else {
             el.innerHTML = `
                 <div style="flex: 1;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="color:var(--danger-color); font-weight:600;">EXPENSE</span>
-                        <div style="font-weight:600; color:var(--text-secondary);">$${Number(t.amount).toFixed(2)}</div>
+                        <div style="font-weight:600; color:var(--text-secondary);">Birr ${Number(t.amount).toFixed(2)}</div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
                         <span style="color:var(--text-secondary); font-size:0.85rem;">${t.desc}</span>
@@ -718,7 +718,7 @@ function renderHistory() {
                     <div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer?.phone || ''}</div>
                 </td>
                 <td style="padding: 1rem;">${t.sellType || 'Cash'}</td>
-                <td style="padding: 1rem; font-weight:700;">$${Number(t.total).toFixed(2)}</td>
+                <td style="padding: 1rem; font-weight:700;">Birr ${Number(t.total).toFixed(2)}</td>
                 <td style="padding: 1rem;">
                      <button onclick="deleteHistoryItem(${t.id}, 'sale')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
                         Delete
@@ -732,7 +732,7 @@ function renderHistory() {
                 <td style="padding: 1rem;">---</td>
                 <td style="padding: 1rem; color:var(--text-secondary);">${t.desc}</td>
                 <td style="padding: 1rem;">---</td>
-                <td style="padding: 1rem; font-weight:700; color:var(--text-secondary);">-$${Number(t.amount).toFixed(2)}</td>
+                <td style="padding: 1rem; font-weight:700; color:var(--text-secondary);">-Birr ${Number(t.amount).toFixed(2)}</td>
                 <td style="padding: 1rem;">
                      <button onclick="deleteHistoryItem(${t.id}, 'expense')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
                         Delete
@@ -828,8 +828,8 @@ function renderPriceNotes() {
 
                 tr.innerHTML = `
                 <td style="padding: 1rem;">${note.item_name || 'Unnamed Item'}</td>
-                <td style="padding: 1rem;">$${minPrice}</td>
-                <td style="padding: 1rem;">$${maxPrice}</td>
+                <td style="padding: 1rem;">Birr ${minPrice}</td>
+                <td style="padding: 1rem;">Birr ${maxPrice}</td>
                 <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-secondary);">${updatedAt}</td>
                 <td style="padding: 1rem; display: flex; gap: 0.5rem;">
                     <button onclick='editPriceNote(${JSON.stringify(note).replace(/'/g, "&#39;")})' 
