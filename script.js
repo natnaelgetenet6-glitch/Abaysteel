@@ -29,7 +29,9 @@ const mgmtSearch = document.getElementById('mgmt-search');
 async function init() {
     if (currentUser) {
         updateNavVisibility();
-        switchView('shop');
+        // Redirect to management if stock role, else shop
+        const startView = currentUser.role === 'stock' ? 'management' : 'shop';
+        switchView(startView);
         await loadData();
     } else {
         switchView('login');
@@ -1231,7 +1233,9 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             currentUser = user;
             localStorage.setItem('nat_current_user', JSON.stringify(currentUser));
             updateNavVisibility();
-            switchView('shop');
+            // Redirect to management if stock role, else shop
+            const startView = currentUser.role === 'stock' ? 'management' : 'shop';
+            switchView(startView);
             await loadData();
         } else {
             const errorData = await res.json();
