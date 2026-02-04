@@ -157,6 +157,11 @@ function switchView(viewName) {
         return;
     }
 
+    if (currentUser && currentUser.role === 'stock' && (viewName === 'shop' || viewName === 'history' || viewName === 'notes' || viewName === 'users')) {
+        alert('Access Denied: Admin or Shop privileges required for this view.');
+        return;
+    }
+
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -210,11 +215,18 @@ function updateNavVisibility() {
         if (historyBtn) historyBtn.style.display = 'none';
         if (notesBtn) notesBtn.style.display = 'none';
         if (usersBtn) usersBtn.style.display = 'none';
+    } else if (currentUser.role === 'stock') {
+        if (mgmtBtn) mgmtBtn.style.display = 'block';
+        if (historyBtn) historyBtn.style.display = 'none';
+        if (notesBtn) notesBtn.style.display = 'none';
+        if (usersBtn) usersBtn.style.display = 'none';
+        if (document.getElementById('nav-shop')) document.getElementById('nav-shop').style.display = 'none';
     } else {
         if (mgmtBtn) mgmtBtn.style.display = 'block';
         if (historyBtn) historyBtn.style.display = 'block';
         if (notesBtn) notesBtn.style.display = 'block';
         if (usersBtn) usersBtn.style.display = 'block';
+        if (document.getElementById('nav-shop')) document.getElementById('nav-shop').style.display = 'block';
     }
 }
 

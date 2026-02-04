@@ -48,6 +48,7 @@
                         <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Role</label>
                         <select id="s-user-role" class="input-field" required>
                             <option value="shop">Shop (User)</option>
+                            <option value="stock">Stock Manager</option>
                             <option value="admin">Administrator</option>
                         </select>
                     </div>
@@ -106,7 +107,7 @@
                 tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
                 tr.innerHTML = `
                     <td style="padding: 1rem; font-weight: 600;">${user.username}</td>
-                    <td style="padding: 1rem;"><span style="background: ${user.role === 'admin' ? 'rgba(14, 165, 233, 0.2)' : 'rgba(148, 163, 184, 0.1)'}; color: ${user.role === 'admin' ? 'var(--text-accent)' : 'inherit'}; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">${user.role.toUpperCase()}</span></td>
+                    <td style="padding: 1rem;"><span style="background: ${user.role === 'admin' ? 'rgba(14, 165, 233, 0.2)' : (user.role === 'stock' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(148, 163, 184, 0.1)')}; color: ${user.role === 'admin' ? 'var(--text-accent)' : (user.role === 'stock' ? 'var(--success-color)' : 'inherit')}; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">${user.role.toUpperCase()}</span></td>
                     <td style="padding: 1rem; color: var(--text-secondary); font-size: 0.9rem;">${new Date(user.created_at).toLocaleDateString()}</td>
                     <td style="padding: 1rem; text-align: right;">
                         <button onclick='editUser(${JSON.stringify(user)})' class="btn-icon" style="color: var(--primary-color); margin-right: 1rem;">Edit</button>

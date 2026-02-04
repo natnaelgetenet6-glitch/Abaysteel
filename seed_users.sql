@@ -13,3 +13,8 @@ ON DUPLICATE KEY UPDATE `password` = '321', `role` = 'admin';
 INSERT INTO `users` (`username`, `password`, `role`) 
 VALUES ('user', '321', 'shop')
 ON DUPLICATE KEY UPDATE `password` = '321', `role` = 'shop';
+
+-- Insert Stock Manager User
+INSERT INTO `users` (`username`, `password`, `role`) 
+VALUES ('stock_user', '321', 'stock')
+ON DUPLICATE KEY UPDATE `password` = '321', `role` = 'stock';
