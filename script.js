@@ -189,6 +189,19 @@ function switchView(viewName) {
     });
     if (btn) btn.classList.add('active');
 
+    // UI Adjustments for role-based views
+    const mgmtContainer = document.querySelector('.management-container');
+    const mgmtRight = document.querySelector('.management-right');
+    if (mgmtContainer && mgmtRight) {
+        if (currentUser && currentUser.role === 'stock') {
+            mgmtRight.style.display = 'none';
+            mgmtContainer.style.gridTemplateColumns = '1fr';
+        } else {
+            mgmtRight.style.display = 'flex';
+            mgmtContainer.style.gridTemplateColumns = '3fr 2fr';
+        }
+    }
+
     // Refresh data on view switch if needed
     if (viewName === 'shop' || viewName === 'management') fetchProducts();
     if (viewName === 'history') fetchHistory();
