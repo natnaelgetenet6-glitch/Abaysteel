@@ -23,6 +23,13 @@ try {
         $pdo->exec("ALTER TABLE products ADD COLUMN shop_quantity INT NOT NULL DEFAULT 0 AFTER stock_quantity");
     }
 
+    // SELF-HEALING: Ensure 'stock' role exists in users table
+    $userRoleCheck = $pdo->query("SHOW COLUMNS FROM users LIKE 'role'")->fetch();
+    if ($userRoleCheck && strpos($userRoleCheck['Type'], 'stock') === false) {
+        $pdo->exec("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'shop', 'stock') NOT NULL DEFAULT 'shop'");
+    }
+
+
 } catch (\PDOException $e) {
     // Return JSON error response if connection fails
     header('Content-Type: application/json');
