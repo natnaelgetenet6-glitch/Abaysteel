@@ -92,6 +92,22 @@ async function fetchStats() {
 
         netProfitEl.textContent = `Birr ${(stats.netProfit || 0).toFixed(2)}`;
         netProfitEl.style.color = (stats.netProfit || 0) >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+
+        // Diagnostic Check
+        if (stats.diagnostics && stats.diagnostics.missingBuyPriceCount > 0) {
+            console.warn(`Profit Warning: ${stats.diagnostics.missingBuyPriceCount} products have 0 Buy Price.`);
+            // Only alert if we haven't warned this session
+            if (!sessionStorage.getItem('profit_warning_shown')) {
+                // Short timeout to allow UI to render first
+                setTimeout(() => {
+                    alert(`Attention: Profit calculation may be incomplete.\n\nFound ${stats.diagnostics.missingBuyPriceCount} products with Buy Price = 0.\n\nPlease go to Management and set the 'Buy Price' for your items to see accurate Gross Profit.`);
+                }, 500);
+                sessionStorage.setItem('profit_warning_shown', 'true');
+            }
+            grossProfitEl.style.color = 'var(--warning-color, #f59e0b)';
+        } else {
+            grossProfitEl.style.color = 'var(--text-accent)';
+        }
     } catch (err) {
         console.error('Error fetching stats:', err);
     }
