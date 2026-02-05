@@ -193,17 +193,21 @@
                 style="color:var(--text-secondary); font-size:0.85rem;">Clear History</button>
             </div>
             <div class="stats-container">
-              <div class="stat-card" style="flex: 1 1 100%;">
+              <!-- Show only Profit as requested -->
+              <div class="stat-card" style="display: none;">
                 <span class="stat-label">Total Sales (Today)</span>
                 <span class="stat-value text-gradient" id="total-sales">Birr 0.00</span>
               </div>
-              <div class="stat-card" style="flex: 1 1 45%;">
+              <div class="stat-card" style="display: none;">
                 <span class="stat-label">Expenses (Month)</span>
                 <span class="stat-value" id="total-expenses" style="color: var(--danger-color)">Birr 0.00</span>
               </div>
-              <div class="stat-card" style="flex: 1 1 45%;">
-                <span class="stat-label">Net Income</span>
-                <span class="stat-value" id="net-income" style="color: var(--success-color)">Birr 0.00</span>
+              <div class="stat-card" style="flex: 1 1 100%; padding: 2rem; text-align: center;">
+                <span class="stat-label" style="font-size: 1.1rem; margin-bottom: 0.5rem;">Overall Net Profit</span>
+                <span class="stat-value" id="net-profit" style="font-size: 2.5rem; color: var(--success-color)">Birr
+                  0.00</span>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">(Total Sales - Cost of
+                  Goods - Expenses)</p>
               </div>
               <div class="stat-card"
                 style="flex: 1 1 100%; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">

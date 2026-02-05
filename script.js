@@ -16,7 +16,7 @@ const cartList = document.getElementById('cart-list');
 const transactionsList = document.getElementById('transactions-list');
 const totalSalesEl = document.getElementById('total-sales');
 const totalExpensesEl = document.getElementById('total-expenses');
-const netIncomeEl = document.getElementById('net-income');
+const netProfitEl = document.getElementById('net-profit');
 const cartTotalEl = document.getElementById('cart-total');
 
 // Inputs
@@ -85,8 +85,8 @@ async function fetchStats() {
         const stats = await res.json();
         totalSalesEl.textContent = `Birr ${(stats.todaySales || 0).toFixed(2)}`;
         totalExpensesEl.textContent = `Birr ${(stats.monthExpenses || 0).toFixed(2)}`;
-        netIncomeEl.textContent = `Birr ${(stats.netIncome || 0).toFixed(2)}`;
-        netIncomeEl.style.color = (stats.netIncome || 0) >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+        netProfitEl.textContent = `Birr ${(stats.netProfit || 0).toFixed(2)}`;
+        netProfitEl.style.color = (stats.netProfit || 0) >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
     } catch (err) {
         console.error('Error fetching stats:', err);
     }
