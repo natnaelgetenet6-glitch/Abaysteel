@@ -16,6 +16,7 @@ const cartList = document.getElementById('cart-list');
 const transactionsList = document.getElementById('transactions-list');
 const totalSalesEl = document.getElementById('total-sales');
 const totalExpensesEl = document.getElementById('total-expenses');
+const grossProfitEl = document.getElementById('gross-profit');
 const netProfitEl = document.getElementById('net-profit');
 const cartTotalEl = document.getElementById('cart-total');
 
@@ -85,6 +86,10 @@ async function fetchStats() {
         const stats = await res.json();
         totalSalesEl.textContent = `Birr ${(stats.todaySales || 0).toFixed(2)}`;
         totalExpensesEl.textContent = `Birr ${(stats.monthExpenses || 0).toFixed(2)}`;
+
+        const grossProfit = (stats.totalSales || 0) - (stats.totalCOGS || 0);
+        grossProfitEl.textContent = `Birr ${grossProfit.toFixed(2)}`;
+
         netProfitEl.textContent = `Birr ${(stats.netProfit || 0).toFixed(2)}`;
         netProfitEl.style.color = (stats.netProfit || 0) >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
     } catch (err) {
