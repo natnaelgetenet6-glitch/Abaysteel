@@ -269,7 +269,7 @@ function updateNavVisibility() {
         if (notesBtn) notesBtn.style.display = 'block';
         if (usersBtn) usersBtn.style.display = 'block';
         if (document.getElementById('nav-overview')) document.getElementById('nav-overview').style.display = 'block';
-        if (managementBtn) managementBtn.style.display = 'block';
+        if (mgmtBtn) mgmtBtn.style.display = 'block';
         if (historyBtn) historyBtn.style.display = 'block';
         if (notesBtn) notesBtn.style.display = 'block';
         if (usersBtn) usersBtn.style.display = 'block';
