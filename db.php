@@ -29,6 +29,27 @@ try {
         $pdo->exec("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'shop', 'stock') NOT NULL DEFAULT 'shop'");
     }
 
+    // SELF-HEALING: Add history columns to sale_items if missing
+    $historyCheck = $pdo->query("SHOW COLUMNS FROM sale_items LIKE 'product_name'")->fetch();
+    if (!$historyCheck) {
+        // Add columns
+        $pdo->exec("ALTER TABLE sale_items 
+            ADD COLUMN product_name VARCHAR(255) DEFAULT NULL,
+            ADD COLUMN dimensions VARCHAR(100) DEFAULT NULL,
+            ADD COLUMN buy_price DECIMAL(10, 2) DEFAULT 0.00
+        ");
+        
+        // Backfill historical data
+        $pdo->exec("UPDATE sale_items si
+            JOIN products p ON si.product_id = p.id
+            SET 
+                si.product_name = p.name,
+                si.dimensions = p.dimensions,
+                si.buy_price = p.buy_price
+            WHERE si.product_name IS NULL
+        ");
+    }
+
 
 } catch (\PDOException $e) {
     // Return JSON error response if connection fails
