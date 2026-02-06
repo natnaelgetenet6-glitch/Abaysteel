@@ -48,15 +48,11 @@ try {
     $trendSql = "
         SELECT 
             DATE(s.sale_date) as date,
-            SUM(s.total_amount) as daily_revenue,
-            (
-                SELECT SUM(si2.quantity * COALESCE(NULLIF(si2.buy_price, 0), p2.buy_price, 0))
-                FROM sale_items si2
-                JOIN sales s2 ON si2.sale_id = s2.id
-                LEFT JOIN products p2 ON si2.product_id = p2.id
-                WHERE DATE(s2.sale_date) = DATE(s.sale_date)
-            ) as daily_cogs
-        FROM sales s
+            SUM(si.subtotal) as daily_revenue,
+            SUM(si.quantity * COALESCE(NULLIF(si.buy_price, 0), p.buy_price, 0)) as daily_cogs
+        FROM sale_items si
+        JOIN sales s ON si.sale_id = s.id
+        LEFT JOIN products p ON si.product_id = p.id
         WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
         GROUP BY DATE(s.sale_date)
         ORDER BY DATE(s.sale_date) ASC
