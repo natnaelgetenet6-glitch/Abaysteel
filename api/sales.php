@@ -30,17 +30,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $saleId = $pdo->lastInsertId();
         
         // 2. Insert Items and Update Stock
-        $itemStmt = $pdo->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, subtotal) VALUES (?, ?, ?, ?, ?)");
+        $itemStmt = $pdo->prepare("INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, subtotal, product_name, dimensions, buy_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stockStmt = $pdo->prepare("UPDATE products SET shop_quantity = shop_quantity - ? WHERE id = ?");
+        $productLookupStmt = $pdo->prepare("SELECT name, dimensions, buy_price FROM products WHERE id = ?");
         
         foreach ($input['items'] as $item) {
+            // Fetch product details for snapshot
+            $productLookupStmt->execute([$item['product']['id']]);
+            $productDetails = $productLookupStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $prodName = $productDetails['name'] ?? 'Unknown';
+            $prodDim = $productDetails['dimensions'] ?? '';
+            $prodBuyPrice = $productDetails['buy_price'] ?? 0.00;
+
             $subtotal = $item['product']['sellPrice'] * $item['qty'];
             $itemStmt->execute([
                 $saleId,
                 $item['product']['id'],
                 $item['qty'],
                 $item['product']['sellPrice'],
-                $subtotal
+                $subtotal,
+                $prodName,
+                $prodDim,
+                $prodBuyPrice
             ]);
             
             $stockStmt->execute([

@@ -109,9 +109,9 @@ if (!empty($saleIds)) {
             si.sale_id,
             si.quantity,
             si.unit_price as sell_price,
-            p.name as product_name,
-            p.dimensions,
-            p.buy_price
+            COALESCE(si.product_name, p.name) as product_name,
+            COALESCE(si.dimensions, p.dimensions) as dimensions,
+            COALESCE(si.buy_price, p.buy_price) as buy_price
         FROM sale_items si
         LEFT JOIN products p ON si.product_id = p.id
         WHERE si.sale_id IN ($placeholders)

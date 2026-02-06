@@ -128,7 +128,7 @@ async function fetchHistory() {
                 phone: h.buyer_phone,
                 address: h.buyer_address
             },
-            items: h.items_summary
+            items: h.items || [] // Now an array of objects
         }));
         expenses = history.filter(h => h.type === 'expense').map(h => ({
             id: h.id,
