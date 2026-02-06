@@ -29,6 +29,7 @@
       <button class="nav-btn active" id="nav-shop" onclick="switchView('shop')">Shop (POS)</button>
       <button class="nav-btn" id="nav-mgmt" onclick="switchView('management')">Management & Stock</button>
       <button class="nav-btn" id="nav-users" onclick="switchView('users')" style="display: none;">Users</button>
+      <button class="nav-btn" id="nav-overview" onclick="switchView('overview')">Overview</button>
       <button class="nav-btn" id="nav-history" onclick="switchView('history')">History</button>
       <button class="nav-btn" id="nav-notes" onclick="switchView('notes')" style="display: none;">Item Rates</button>
       <button class="btn-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle Day/Night Mode"
@@ -185,56 +186,7 @@
         <!-- Right Col: Stats & Expenses -->
         <div class="management-right">
 
-          <!-- Stats moved here -->
-          <div class="glass-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
-              <h3 style="margin:0;">Business Overview</h3>
-              <button onclick="clearBusinessData()" class="btn-text"
-                style="color:var(--text-secondary); font-size:0.85rem;">Clear History</button>
-            </div>
-            <div class="stats-container">
-              <div class="stat-card" style="flex: 1 1 45%;">
-                <span class="stat-label">Total Sales (Today)</span>
-                <span class="stat-value text-gradient" id="total-sales">Birr 0.00</span>
-              </div>
-              <div class="stat-card" style="flex: 1 1 45%;">
-                <span class="stat-label">Expenses (Month)</span>
-                <span class="stat-value" id="total-expenses" style="color: var(--danger-color)">Birr 0.00</span>
-              </div>
-              <div class="stat-card"
-                style="flex: 1 1 100%; margin-top: 1rem; padding: 1.5rem; text-align: center; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.03);">
-                <span class="stat-label" style="font-size: 1rem; margin-bottom: 0.5rem; display: block;">Gross
-                  Profit</span>
-                <span class="stat-value" id="gross-profit"
-                  style="font-size: 2.2rem; color: var(--text-accent); display: block;">Birr 0.00</span>
-                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Total Sales - Total Buy
-                  Price</p>
-              </div>
-
-              <div class="stat-card"
-                style="flex: 1 1 100%; margin-top: 1rem; padding: 1.5rem; text-align: center; border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.03);">
-                <span class="stat-label" style="font-size: 1rem; margin-bottom: 0.5rem; display: block;">Overall Net
-                  Profit</span>
-                <span class="stat-value" id="net-profit"
-                  style="font-size: 2.2rem; color: var(--success-color); display: block;">Birr 0.00</span>
-                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Total Sales - Cost of
-                  Goods - Expenses</p>
-              </div>
-              <div class="stat-card"
-                style="flex: 1 1 100%; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                <a href="users.php" class="btn btn-primary"
-                  style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  Manage System Users
-                </a>
-              </div>
-            </div>
-          </div>
+          <!-- Stats MOVED TO OVERVIEW PAGE -->
 
           <div class="glass-panel" style="padding: 1.5rem;">
             <h3>Quick Expense</h3>
@@ -256,6 +208,66 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: OVERVIEW -->
+    <div id="view-overview" class="view-section hidden"
+      style="flex: 1; display: flex; flex-direction: column; gap: 1rem; padding: 1rem; overflow-y: auto;">
+
+      <!-- Filters -->
+      <div class="glass-panel" style="padding: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <h3 style="margin-right: auto;">Business Analytics</h3>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label style="font-size: 0.85rem; color: var(--text-secondary);">From</label>
+          <input type="date" id="overview-start" class="input-field" style="width: auto;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label style="font-size: 0.85rem; color: var(--text-secondary);">To</label>
+          <input type="date" id="overview-end" class="input-field" style="width: auto;">
+        </div>
+        <button class="btn btn-primary" onclick="fetchOverviewData()">Filter</button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div class="glass-panel" style="padding: 1.5rem;">
+          <span class="stat-label">Total Revenue</span>
+          <span class="stat-value text-gradient" id="ov-revenue">Birr 0.00</span>
+        </div>
+        <div class="glass-panel" style="padding: 1.5rem;">
+          <span class="stat-label">Total Expenses</span>
+          <span class="stat-value" id="ov-expenses" style="color: var(--danger-color)">Birr 0.00</span>
+        </div>
+        <div class="glass-panel" style="padding: 1.5rem;">
+          <span class="stat-label">Gross Profit</span>
+          <span class="stat-value" id="ov-gross" style="color: var(--text-accent)">Birr 0.00</span>
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">Revenue - COGS</p>
+        </div>
+        <div class="glass-panel" style="padding: 1.5rem;">
+          <span class="stat-label">Net Profit</span>
+          <span class="stat-value" id="ov-net" style="color: var(--success-color)">Birr 0.00</span>
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">Gross - Expenses</p>
+        </div>
+      </div>
+
+      <!-- Graphs -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; min-height: 400px;">
+        <!-- Trend Graph -->
+        <div class="glass-panel" style="padding: 1rem; display: flex; flex-direction: column;">
+          <h4>Revenue & Profit Trend</h4>
+          <div style="flex: 1; position: relative;">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Items -->
+        <div class="glass-panel" style="padding: 1rem; display: flex; flex-direction: column;">
+          <h4>Top Selling Items</h4>
+          <div style="flex: 1; position: relative;">
+            <canvas id="topItemsChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -494,7 +506,9 @@
     </div>
   </div> <!-- This closes #app -->
 
-  <script src="script.js?v=2.0.6"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js?v=2.0.7"></script>
 </body>
 
 </html>

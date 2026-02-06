@@ -231,6 +231,7 @@ function switchView(viewName) {
     // Refresh data on view switch if needed
     if (viewName === 'shop' || viewName === 'management') fetchProducts();
     if (viewName === 'history') fetchHistory();
+    if (viewName === 'overview') fetchOverviewData();
     if (viewName === 'notes') fetchPriceNotes();
     if (viewName === 'users') fetchUsers();
 
@@ -267,8 +268,131 @@ function updateNavVisibility() {
         if (historyBtn) historyBtn.style.display = 'block';
         if (notesBtn) notesBtn.style.display = 'block';
         if (usersBtn) usersBtn.style.display = 'block';
+        if (document.getElementById('nav-overview')) document.getElementById('nav-overview').style.display = 'block';
+        if (managementBtn) managementBtn.style.display = 'block';
+        if (historyBtn) historyBtn.style.display = 'block';
+        if (notesBtn) notesBtn.style.display = 'block';
+        if (usersBtn) usersBtn.style.display = 'block';
         if (document.getElementById('nav-shop')) document.getElementById('nav-shop').style.display = 'block';
     }
+}
+
+// --- OVERVIEW LOGIC ---
+let trendChart = null;
+let topItemsChart = null;
+
+async function fetchOverviewData() {
+    const startEl = document.getElementById('overview-start');
+    const endEl = document.getElementById('overview-end');
+
+    // Set defaults if empty
+    if (!startEl.value) {
+        const d = new Date();
+        d.setDate(1); // 1st of current month
+        startEl.valueAsDate = d;
+    }
+    if (!endEl.value) {
+        endEl.valueAsDate = new Date();
+    }
+
+    const start = startEl.value;
+    const end = endEl.value;
+
+    try {
+        const res = await fetch(`${API_URL}/overview.php?startDate=${start}&endDate=${end}`);
+        const data = await res.json();
+
+        renderOverviewStats(data.stats);
+        renderOverviewCharts(data);
+    } catch (err) {
+        console.error('Error fetching overview:', err);
+    }
+}
+
+function renderOverviewStats(stats) {
+    document.getElementById('ov-revenue').textContent = `Birr ${(stats.totalSales || 0).toFixed(2)}`;
+    document.getElementById('ov-expenses').textContent = `Birr ${(stats.totalExpenses || 0).toFixed(2)}`;
+    document.getElementById('ov-gross').textContent = `Birr ${(stats.grossProfit || 0).toFixed(2)}`;
+
+    const netEl = document.getElementById('ov-net');
+    netEl.textContent = `Birr ${(stats.netProfit || 0).toFixed(2)}`;
+    netEl.style.color = (stats.netProfit || 0) >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+}
+
+function renderOverviewCharts(data) {
+    // 1. Trend Chart (Line/Bar)
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+
+    if (trendChart) trendChart.destroy();
+
+    trendChart = new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: data.trend.labels,
+            datasets: [
+                {
+                    label: 'Revenue',
+                    data: data.trend.revenue,
+                    borderColor: '#60a5fa', // blue-400
+                    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                    yAxisID: 'y',
+                    fill: true
+                },
+                {
+                    label: 'Gross Profit',
+                    data: data.trend.profit,
+                    borderColor: '#34d399', // emerald-400
+                    yAxisID: 'y',
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: { labels: { color: '#94a3b8' } } // text-secondary
+            },
+            scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+
+    // 2. Top Items Chart (Bar)
+    const ctxTop = document.getElementById('topItemsChart').getContext('2d');
+
+    if (topItemsChart) topItemsChart.destroy();
+
+    topItemsChart = new Chart(ctxTop, {
+        type: 'bar',
+        data: {
+            labels: data.topSells.map(i => i.name),
+            datasets: [{
+                label: 'Qty Sold',
+                data: data.topSells.map(i => i.total_qty),
+                backgroundColor: ['#f472b6', '#a78bfa', '#34d399', '#facc15', '#60a5fa'],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Horizontal bar
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+            }
+        }
+    });
 }
 
 // Data Handling Helpers
