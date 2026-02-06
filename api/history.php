@@ -51,23 +51,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Default GET: Fetch History
+// 1. Fetch Sales and Expenses (Top 500 by date)
 $sql = "
     SELECT 
-        s.id, 
-        s.sale_date as date, 
-        s.total_amount as amount, 
-        s.sell_type, 
-        s.processed_by as user, 
-        s.buyer_name, 
-        s.buyer_phone,
-        s.buyer_address,
-        GROUP_CONCAT(CONCAT(p.name, ' (', COALESCE(p.dimensions, '-'), ') x ', si.quantity) SEPARATOR ', ') as items_summary,
+        id, 
+        sale_date as date, 
+        total_amount as amount, 
+        sell_type, 
+        processed_by as user, 
+        buyer_name, 
+        buyer_phone,
+        buyer_address,
         NULL as description, 
         'sale' as type 
-    FROM sales s
-    LEFT JOIN sale_items si ON s.id = si.sale_id
-    LEFT JOIN products p ON si.product_id = p.id
-    GROUP BY s.id
+    FROM sales
     UNION ALL
     SELECT 
         id, 
@@ -78,7 +75,6 @@ $sql = "
         NULL as buyer_name, 
         NULL as buyer_phone,
         NULL as buyer_address,
-        NULL as items_summary,
         description, 
         'expense' as type 
     FROM expenses
@@ -87,5 +83,57 @@ $sql = "
 ";
 
 $stmt = $pdo->query($sql);
-echo json_encode($stmt->fetchAll());
+$history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// 2. Extract Sale IDs to fetch items
+$saleIds = [];
+// Map keys for easy lookup
+$salesMap = [];
+
+foreach ($history as $key => $row) {
+    if ($row['type'] === 'sale') {
+        $saleIds[] = $row['id'];
+        $history[$key]['items'] = []; // Initialize empty items array
+        // We can't easily use id as key because history is a mixed array, 
+        // allowing duplicates if we had multiple sales with same ID (unlikely but possible if data err).
+        // Instead, we'll iterate again or build a reference map if needed.
+        // Actually, let's just use a simple loop later to attach items to keep order.
+    }
+}
+
+// 3. Fetch Items for these Sales if any
+if (!empty($saleIds)) {
+    $placeholders = implode(',', array_fill(0, count($saleIds), '?'));
+    $itemSql = "
+        SELECT 
+            si.sale_id,
+            si.quantity,
+            si.unit_price as sell_price,
+            p.name as product_name,
+            p.dimensions,
+            p.buy_price
+        FROM sale_items si
+        LEFT JOIN products p ON si.product_id = p.id
+        WHERE si.sale_id IN ($placeholders)
+    ";
+    
+    $itemStmt = $pdo->prepare($itemSql);
+    $itemStmt->execute($saleIds);
+    $allItems = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Group items by sale_id
+    $itemsBySale = [];
+    foreach ($allItems as $item) {
+        $itemsBySale[$item['sale_id']][] = $item;
+    }
+
+    // Attach to history
+    foreach ($history as &$row) {
+        if ($row['type'] === 'sale' && isset($itemsBySale[$row['id']])) {
+            $row['items'] = $itemsBySale[$row['id']];
+        }
+    }
+}
+
+echo json_encode($history);
 ?>

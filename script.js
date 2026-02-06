@@ -716,16 +716,26 @@ function renderHistory() {
         const descStr = (t.desc || '').toLowerCase();
         const amountStr = (t.total || t.amount || 0).toString();
 
+        // Search in items strings
+        let itemMatch = false;
+        if (isSale && t.items && Array.isArray(t.items)) {
+            itemMatch = t.items.some(i =>
+                (i.product_name || '').toLowerCase().includes(searchVal) ||
+                (i.dimensions || '').toLowerCase().includes(searchVal)
+            );
+        }
+
         return typeStr.includes(searchVal) ||
             dateStr.includes(searchVal) ||
             buyerStr.includes(searchVal) ||
             sellTypeStr.includes(searchVal) ||
             descStr.includes(searchVal) ||
-            amountStr.includes(searchVal);
+            amountStr.includes(searchVal) ||
+            itemMatch;
     });
 
     if (filtered.length === 0) {
-        historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No transactions found</td></tr>';
+        historyTableBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 2rem; color:var(--text-secondary);">No transactions found</td></tr>';
         return;
     }
 
@@ -735,21 +745,44 @@ function renderHistory() {
         const isSale = t.hasOwnProperty('sellType');
 
         if (isSale) {
+            // Helper to stack items vertically
+            const renderItemsCol = (fn) => {
+                if (!t.items || t.items.length === 0) return '---';
+                return t.items.map(item => `
+                    <div style="padding: 2px 0; height: 1.5rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                        ${fn(item)}
+                    </div>
+                `).join('');
+            };
+
             tr.innerHTML = `
-                <td style="padding: 1rem;">${new Date(t.date).toLocaleString()}</td>
-                <td style="padding: 1rem;">
+                <td style="padding: 1rem; vertical-align: top;">${new Date(t.date).toLocaleString()}</td>
+                <td style="padding: 1rem; vertical-align: top;">
                     <span style="color:var(--success-color); font-weight:600;">SALE</span>
-                    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem;">${t.items || 'No items'}</div>
                 </td>
-                <td style="padding: 1rem;">${t.user || '---'}</td>
-                <td style="padding: 1rem;">
+                
+                <td style="padding: 1rem; vertical-align: top;">
+                    ${renderItemsCol(i => i.product_name + (i.quantity > 1 ? ` <span style="color:var(--text-secondary)">(x${i.quantity})</span>` : ''))}
+                </td>
+                <td style="padding: 1rem; vertical-align: top;">
+                    ${renderItemsCol(i => i.dimensions || '-')}
+                </td>
+                <td style="padding: 1rem; vertical-align: top;">
+                    ${renderItemsCol(i => 'Birr ' + Number(i.buy_price || 0).toFixed(2))}
+                </td>
+                <td style="padding: 1rem; vertical-align: top;">
+                    ${renderItemsCol(i => 'Birr ' + Number(i.sell_price || 0).toFixed(2))}
+                </td>
+
+                <td style="padding: 1rem; vertical-align: top;">${t.user || '---'}</td>
+                <td style="padding: 1rem; vertical-align: top;">
                     <div style="font-weight:600;">${t.buyer?.name || '---'}</div>
                     ${t.buyer?.phone ? `<div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer.phone}</div>` : ''}
                     ${t.buyer?.address ? `<div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer.address}</div>` : ''}
                 </td>
-                <td style="padding: 1rem;">${t.sellType || 'Cash'}</td>
-                <td style="padding: 1rem; font-weight:700;">Birr ${Number(t.total).toFixed(2)}</td>
-                <td style="padding: 1rem;">
+                <td style="padding: 1rem; vertical-align: top;">${t.sellType || 'Cash'}</td>
+                <td style="padding: 1rem; vertical-align: top; font-weight:700;">Birr ${Number(t.total).toFixed(2)}</td>
+                <td style="padding: 1rem; vertical-align: top;">
                      <button onclick="deleteHistoryItem(${t.id}, 'sale')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
                         Delete
                      </button>
@@ -757,13 +790,19 @@ function renderHistory() {
             `;
         } else {
             tr.innerHTML = `
-                <td style="padding: 1rem;">${new Date(t.date).toLocaleString()}</td>
-                <td style="padding: 1rem;"><span style="color:var(--danger-color); font-weight:600;">EXPENSE</span></td>
-                <td style="padding: 1rem;">---</td>
-                <td style="padding: 1rem; color:var(--text-secondary);">${t.desc}</td>
-                <td style="padding: 1rem;">---</td>
-                <td style="padding: 1rem; font-weight:700; color:var(--text-secondary);">-Birr ${Number(t.amount).toFixed(2)}</td>
-                <td style="padding: 1rem;">
+                <td style="padding: 1rem; vertical-align: top;">${new Date(t.date).toLocaleString()}</td>
+                <td style="padding: 1rem; vertical-align: top;"><span style="color:var(--danger-color); font-weight:600;">EXPENSE</span></td>
+                
+                <td style="padding: 1rem; vertical-align: top;">---</td>
+                <td style="padding: 1rem; vertical-align: top;">---</td>
+                <td style="padding: 1rem; vertical-align: top;">---</td>
+                <td style="padding: 1rem; vertical-align: top;">---</td>
+
+                <td style="padding: 1rem; vertical-align: top;">---</td>
+                <td style="padding: 1rem; vertical-align: top; color:var(--text-secondary);">${t.desc}</td>
+                <td style="padding: 1rem; vertical-align: top;">---</td>
+                <td style="padding: 1rem; vertical-align: top; font-weight:700; color:var(--text-secondary);">-Birr ${Number(t.amount).toFixed(2)}</td>
+                <td style="padding: 1rem; vertical-align: top;">
                      <button onclick="deleteHistoryItem(${t.id}, 'expense')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
                         Delete
                      </button>
