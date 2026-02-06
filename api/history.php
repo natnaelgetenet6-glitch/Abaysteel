@@ -53,11 +53,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Default GET: Fetch History
 $sql = "
     SELECT 
-        id, sale_date as date, total_amount as amount, sell_type, processed_by as user, buyer_name, NULL as description, 'sale' as type 
-    FROM sales
+        s.id, 
+        s.sale_date as date, 
+        s.total_amount as amount, 
+        s.sell_type, 
+        s.processed_by as user, 
+        s.buyer_name, 
+        s.buyer_phone,
+        s.buyer_address,
+        GROUP_CONCAT(CONCAT(p.name, ' (', COALESCE(p.dimensions, '-'), ') x ', si.quantity) SEPARATOR ', ') as items_summary,
+        NULL as description, 
+        'sale' as type 
+    FROM sales s
+    LEFT JOIN sale_items si ON s.id = si.sale_id
+    LEFT JOIN products p ON si.product_id = p.id
+    GROUP BY s.id
     UNION ALL
     SELECT 
-        id, expense_date as date, amount, NULL as sell_type, NULL as user, NULL as buyer_name, description, 'expense' as type 
+        id, 
+        expense_date as date, 
+        amount, 
+        NULL as sell_type, 
+        NULL as user, 
+        NULL as buyer_name, 
+        NULL as buyer_phone,
+        NULL as buyer_address,
+        NULL as items_summary,
+        description, 
+        'expense' as type 
     FROM expenses
     ORDER BY date DESC
     LIMIT 500

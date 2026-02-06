@@ -123,7 +123,12 @@ async function fetchHistory() {
             total: h.amount, // API uses 'amount' alias for total_amount in union
             sellType: h.sell_type,
             user: h.user,
-            buyer: { name: h.buyer_name }
+            buyer: {
+                name: h.buyer_name,
+                phone: h.buyer_phone,
+                address: h.buyer_address
+            },
+            items: h.items_summary
         }));
         expenses = history.filter(h => h.type === 'expense').map(h => ({
             id: h.id,
@@ -732,11 +737,15 @@ function renderHistory() {
         if (isSale) {
             tr.innerHTML = `
                 <td style="padding: 1rem;">${new Date(t.date).toLocaleString()}</td>
-                <td style="padding: 1rem;"><span style="color:var(--success-color); font-weight:600;">SALE</span></td>
+                <td style="padding: 1rem;">
+                    <span style="color:var(--success-color); font-weight:600;">SALE</span>
+                    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem;">${t.items || 'No items'}</div>
+                </td>
                 <td style="padding: 1rem;">${t.user || '---'}</td>
                 <td style="padding: 1rem;">
                     <div style="font-weight:600;">${t.buyer?.name || '---'}</div>
-                    <div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer?.phone || ''}</div>
+                    ${t.buyer?.phone ? `<div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer.phone}</div>` : ''}
+                    ${t.buyer?.address ? `<div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer.address}</div>` : ''}
                 </td>
                 <td style="padding: 1rem;">${t.sellType || 'Cash'}</td>
                 <td style="padding: 1rem; font-weight:700;">Birr ${Number(t.total).toFixed(2)}</td>
