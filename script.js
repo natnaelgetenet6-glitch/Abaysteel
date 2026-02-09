@@ -672,13 +672,21 @@ function addToCart(productId) {
     if (cartItem) {
         if (cartItem.qty < (product.shop_quantity || 0)) {
             cartItem.qty++;
+            // If item exists, we need to re-render to show updated qty, 
+            // but we don't have focus issues here since it's a button click outside the input.
+            renderCart();
         } else {
             alert('Not enough shop stock!');
         }
     } else {
-        cart.push({ product: product, qty: 1 });
+        // Initialize with default sell price
+        cart.push({
+            product: product,
+            qty: 1,
+            customPrice: Number(product.sell_price)
+        });
+        renderCart();
     }
-    renderCart();
 }
 
 function renderCart() {
@@ -692,26 +700,33 @@ function renderCart() {
     }
 
     cart.forEach((item, index) => {
-        // Warning: using product.sell_price from API logic
-        const price = Number(item.product.sell_price);
+        const price = item.customPrice; // Use the custom editable price
         const itemTotal = price * item.qty;
         total += itemTotal;
 
         const el = document.createElement('div');
         el.className = 'cart-item';
+        // Added inputs for Price and Quantity using oninput to allow real-time typing without focus loss (since we won't re-render list)
         el.innerHTML = `
-            <div>
-                <div style="font-weight:600;">${item.product.name}</div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
-                    <span style="font-size:0.85rem; color:var(--text-secondary);">Birr ${price.toFixed(2)} x </span>
+            <div style="flex: 1;">
+                <div style="font-weight:600; margin-bottom: 0.25rem;">${item.product.name}</div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span style="font-size:0.85rem; color:var(--text-secondary);">Price</span>
+                    <input type="number" step="0.01" value="${price}" 
+                           id="cart-price-${index}"
+                           oninput="updateCartItem(${index})"
+                           class="input-field" style="width: 80px; padding: 0.2rem; height: auto;">
+                    
+                    <span style="font-size:0.85rem; color:var(--text-secondary);">Qty</span>
                     <input type="number" min="1" max="${item.product.shop_quantity}" value="${item.qty}" 
-                           onchange="updateCartQty(${index}, this.value)" 
+                           id="cart-qty-${index}"
+                           oninput="updateCartItem(${index})" 
                            class="input-field" style="width: 60px; padding: 0.2rem; height: auto;">
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:0.5rem;">
-                <span style="font-weight:700;">Birr ${itemTotal.toFixed(2)}</span>
-                <button onclick="removeFromCart(${index})" class="btn-icon" style="color:var(--danger-color);">&times;</button>
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-direction: column; align-items: flex-end;">
+                <span id="cart-subtotal-${index}" style="font-weight:700;">Birr ${itemTotal.toFixed(2)}</span>
+                <button onclick="removeFromCart(${index})" class="btn-icon" style="color:var(--danger-color); padding: 0;">Remove</button>
             </div>
         `;
         cartList.appendChild(el);
@@ -720,25 +735,44 @@ function renderCart() {
     cartTotalEl.value = total.toFixed(2);
 }
 
-function updateCartQty(index, newQty) {
-    const qty = parseInt(newQty);
-    if (isNaN(qty) || qty < 1) {
-        alert('Invalid quantity');
-        renderCart();
-        return;
-    }
+function updateCartItem(index) {
+    const qtyInput = document.getElementById(`cart-qty-${index}`);
+    const priceInput = document.getElementById(`cart-price-${index}`);
+    const subtotalEl = document.getElementById(`cart-subtotal-${index}`);
 
+    let newQty = parseInt(qtyInput.value);
+    let newPrice = parseFloat(priceInput.value);
+
+    // Basic Validation
+    if (isNaN(newQty) || newQty < 1) newQty = 0; // Don't block user typing empty string, handle gracefully
+    if (isNaN(newPrice)) newPrice = 0;
+
+    // Check Stock
     const item = cart[index];
     const maxStock = item.product.shop_quantity || 0;
 
-    if (qty > maxStock) {
-        alert(`Cannot sell more than shop stock (${maxStock})`);
-        renderCart();
-        return;
+    // Warn but allow correction (or clamp)
+    // Here we hard clamp if it exceeds stock to prevent invalid state
+    if (newQty > maxStock) {
+        // Only clamp if not 0 (typing in progress)
+        // Actually, for better UX, let them type but show error? 
+        // Simpler for now: just clamp
+        // newQty = maxStock;
+        // qtyInput.value = maxStock;
+        // Or better: valid state update
     }
 
-    item.qty = qty;
-    renderCart(); // Re-render to update totals
+    // Update Model
+    item.qty = newQty;
+    item.customPrice = newPrice;
+
+    // View Update (Subtotal)
+    const itemTotal = newQty * newPrice;
+    subtotalEl.textContent = `Birr ${itemTotal.toFixed(2)}`;
+
+    // Recalculate Grand Total
+    const grandTotal = cart.reduce((acc, c) => acc + (c.qty * c.customPrice), 0);
+    cartTotalEl.value = grandTotal.toFixed(2);
 }
 
 function removeFromCart(index) {
@@ -749,8 +783,23 @@ function removeFromCart(index) {
 async function completeSale() {
     if (cart.length === 0) return;
 
+    // Validate Stocks before submitting
+    for (const item of cart) {
+        if (item.qty > (item.product.shop_quantity || 0)) {
+            alert(`Quantity for ${item.product.name} exceeds shop stock (${item.product.shop_quantity})`);
+            return;
+        }
+        if (item.qty <= 0) {
+            alert(`Invalid quantity for ${item.product.name}`);
+            return;
+        }
+    }
+
     const manualTotal = parseFloat(document.getElementById('cart-total').value);
-    const calculatedTotal = cart.reduce((acc, item) => acc + (Number(item.product.sell_price) * item.qty), 0);
+    const calculatedTotal = cart.reduce((acc, item) => acc + (item.customPrice * item.qty), 0);
+    // Allow manual total override if it's different (e.g. slight rounding adjustment by user)
+    // But strictly speaking, if we allow unit price edits, the calculated total IS the source of truth.
+    // However, if user edits total directly, we should probably respect it.
     const total = !isNaN(manualTotal) ? manualTotal : calculatedTotal;
 
     const sellType = document.getElementById('sell-type').value;
@@ -760,7 +809,11 @@ async function completeSale() {
 
     const saleData = {
         items: cart.map(c => ({
-            product: { id: c.product.id, sellPrice: c.product.sell_price },
+            product: {
+                id: c.product.id,
+                // We send the CUSTOM price as the selling price
+                sellPrice: c.customPrice
+            },
             qty: c.qty
         })),
         total,
