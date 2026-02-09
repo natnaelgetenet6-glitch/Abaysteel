@@ -702,7 +702,12 @@ function renderCart() {
         el.innerHTML = `
             <div>
                 <div style="font-weight:600;">${item.product.name}</div>
-                <div style="font-size:0.85rem; color:var(--text-secondary);">Birr ${price.toFixed(2)} x ${item.qty}</div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                    <span style="font-size:0.85rem; color:var(--text-secondary);">Birr ${price.toFixed(2)} x </span>
+                    <input type="number" min="1" max="${item.product.shop_quantity}" value="${item.qty}" 
+                           onchange="updateCartQty(${index}, this.value)" 
+                           class="input-field" style="width: 60px; padding: 0.2rem; height: auto;">
+                </div>
             </div>
             <div style="display:flex; align-items:center; gap:0.5rem;">
                 <span style="font-weight:700;">Birr ${itemTotal.toFixed(2)}</span>
@@ -713,6 +718,27 @@ function renderCart() {
     });
 
     cartTotalEl.value = total.toFixed(2);
+}
+
+function updateCartQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (isNaN(qty) || qty < 1) {
+        alert('Invalid quantity');
+        renderCart();
+        return;
+    }
+
+    const item = cart[index];
+    const maxStock = item.product.shop_quantity || 0;
+
+    if (qty > maxStock) {
+        alert(`Cannot sell more than shop stock (${maxStock})`);
+        renderCart();
+        return;
+    }
+
+    item.qty = qty;
+    renderCart(); // Re-render to update totals
 }
 
 function removeFromCart(index) {
