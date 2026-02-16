@@ -985,7 +985,11 @@ function renderHistory() {
                 </td>
                 <td style="padding: 1rem; vertical-align: top;">${t.sellType || 'Cash'}</td>
                 <td style="padding: 1rem; vertical-align: top; font-weight:700;">Birr ${Number(t.total).toFixed(2)}</td>
-                <td style="padding: 1rem; vertical-align: top;">
+                <td style="padding: 1rem; vertical-align: top; display: flex; gap: 0.5rem;">
+                     ${currentUser && currentUser.role === 'admin' ? `
+                     <button onclick='editHistoryItem(${JSON.stringify(t).replace(/'/g, "&#39;")})' style="background:none; border:none; color:var(--primary-color); cursor:pointer;">
+                        Edit
+                     </button>` : ''}
                      <button onclick="deleteHistoryItem(${t.id}, 'sale')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;">
                         Delete
                      </button>
@@ -1042,6 +1046,55 @@ async function deleteHistoryItem(id, type) {
         alert('Failed to delete item: Network Error');
     }
 }
+
+function editHistoryItem(sale) {
+    document.getElementById('edit-sale-id').value = sale.id;
+    document.getElementById('edit-buyer-name').value = sale.buyer?.name || '';
+    document.getElementById('edit-buyer-phone').value = sale.buyer?.phone || '';
+    document.getElementById('edit-buyer-address').value = sale.buyer?.address || '';
+    document.getElementById('edit-sell-type').value = sale.sellType || 'Cash';
+    document.getElementById('edit-total-amount').value = sale.total;
+
+    openModal('edit-sale-modal');
+}
+
+document.getElementById('edit-sale-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('edit-sale-id').value;
+    const buyerName = document.getElementById('edit-buyer-name').value;
+    const buyerPhone = document.getElementById('edit-buyer-phone').value;
+    const buyerAddress = document.getElementById('edit-buyer-address').value;
+    const sellType = document.getElementById('edit-sell-type').value;
+    const totalAmount = parseFloat(document.getElementById('edit-total-amount').value);
+
+    try {
+        const res = await fetch(`${API_URL}/history.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'update_sale',
+                id: id,
+                buyer_name: buyerName,
+                buyer_phone: buyerPhone,
+                buyer_address: buyerAddress,
+                sell_type: sellType,
+                total_amount: totalAmount
+            })
+        });
+
+        if (res.ok) {
+            closeModal('edit-sale-modal');
+            alert('Sale updated successfully!');
+            await Promise.all([fetchStats(), fetchHistory()]);
+        } else {
+            const data = await res.json();
+            alert('Failed to update sale: ' + (data.error || 'Unknown error'));
+        }
+    } catch (err) {
+        console.error('Update error:', err);
+        alert('Failed to update sale: Network Error');
+    }
+});
 
 async function clearHistory() {
     if (!confirm('Are you sure you want to delete ALL history (Sales & Expenses)? This cannot be undone.')) return;
@@ -1559,6 +1612,8 @@ window.openTransferModal = openTransferModal;
 window.editPriceNote = editPriceNote;
 window.fetchPriceNotes = fetchPriceNotes;
 window.deleteHistoryItem = deleteHistoryItem;
+window.deleteHistoryItem = deleteHistoryItem;
+window.editHistoryItem = editHistoryItem;
 window.editProduct = editProduct;
 window.openAddProductModal = openAddProductModal;
 window.clearHistory = clearHistory;

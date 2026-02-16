@@ -504,6 +504,54 @@
         </form>
       </div>
     </div>
+    <!-- Modal: Edit Sale -->
+    <div class="modal" id="edit-sale-modal">
+      <div class="glass-panel" style="width: 400px; padding: 2rem; background: #0f172a;">
+        <h2 style="margin-bottom: 1.5rem;">Edit Sale Details</h2>
+        <form id="edit-sale-form">
+          <input type="hidden" id="edit-sale-id">
+
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Buyer Name</label>
+            <input type="text" id="edit-buyer-name" class="input-field" placeholder="Buyer Name">
+          </div>
+
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Buyer Phone</label>
+            <input type="text" id="edit-buyer-phone" class="input-field" placeholder="Phone Number">
+          </div>
+
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Buyer Address</label>
+            <input type="text" id="edit-buyer-address" class="input-field" placeholder="Address">
+          </div>
+
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Sell Type</label>
+            <select id="edit-sell-type" class="input-field">
+              <option value="Cash">Cash</option>
+              <option value="Credit">Credit</option>
+              <option value="Bank Account">Bank Account</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Total Amount
+              (Birr)</label>
+            <input type="number" step="0.01" id="edit-total-amount" class="input-field" required>
+            <p style="font-size: 0.75rem; color: var(--warning-color); margin-top: 0.25rem;">
+              Warning: Changing total does not affect profit calculation (based on items).
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="button" class="btn" style="background: var(--bg-hover);"
+              onclick="closeModal('edit-sale-modal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Sale</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div> <!-- This closes #app -->
 
   <!-- Chart.js -->

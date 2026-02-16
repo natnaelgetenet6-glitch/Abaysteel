@@ -50,6 +50,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Handle Update Actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $action = $input['action'] ?? '';
+
+    if ($action === 'update_sale') {
+        $id = $input['id'] ?? null;
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing Sale ID']);
+            exit;
+        }
+
+        $buyerName = $input['buyer_name'] ?? null;
+        $buyerPhone = $input['buyer_phone'] ?? null;
+        $buyerAddress = $input['buyer_address'] ?? null;
+        $sellType = $input['sell_type'] ?? 'Cash';
+        $totalAmount = $input['total_amount'] ?? 0;
+
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE sales 
+                SET buyer_name = ?, buyer_phone = ?, buyer_address = ?, sell_type = ?, total_amount = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$buyerName, $buyerPhone, $buyerAddress, $sellType, $totalAmount, $id]);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Update failed: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+}
+
 // Default GET: Fetch History
 // 1. Fetch Sales and Expenses (Top 500 by date)
 $sql = "
