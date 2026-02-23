@@ -13,7 +13,7 @@ try {
     // ----------------
 
     // 1a. Total Sales (Revenue)
-    $stmt = $pdo->prepare("SELECT SUM(total_amount) as total FROM sales WHERE sale_date >= ? AND sale_date <= ? + INTERVAL 1 DAY");
+    $stmt = $pdo->prepare("SELECT SUM(total_amount) as total FROM sales WHERE sale_date >= ? AND sale_date <= ? + INTERVAL 1 DAY AND (sell_type != 'Credit' OR credit_status = 'Paid')");
     $stmt->execute([$startDate, $endDate]);
     $totalSales = $stmt->fetch()['total'] ?? 0;
 
@@ -33,6 +33,7 @@ try {
         JOIN sales s ON si.sale_id = s.id
         LEFT JOIN products p ON si.product_id = p.id
         WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
+        AND (s.sell_type != 'Credit' OR s.credit_status = 'Paid')
     ";
     $stmt = $pdo->prepare($cogsSql);
     $stmt->execute([$startDate, $endDate]);
@@ -54,6 +55,7 @@ try {
         JOIN sales s ON si.sale_id = s.id
         LEFT JOIN products p ON si.product_id = p.id
         WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
+        AND (s.sell_type != 'Credit' OR s.credit_status = 'Paid')
         GROUP BY DATE(s.sale_date)
         ORDER BY DATE(s.sale_date) ASC
     ";
@@ -88,6 +90,7 @@ try {
         JOIN sales s ON si.sale_id = s.id
         LEFT JOIN products p ON si.product_id = p.id
         WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
+        AND (s.sell_type != 'Credit' OR s.credit_status = 'Paid')
         GROUP BY COALESCE(si.product_name, p.name)
         ORDER BY total_revenue DESC
         LIMIT 5
