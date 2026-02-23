@@ -50,6 +50,13 @@ try {
         ");
     }
 
+    // SELF-HEALING: Add credit_status column to sales if missing
+    $creditCheck = $pdo->query("SHOW COLUMNS FROM sales LIKE 'credit_status'")->fetch();
+    if (!$creditCheck) {
+        $pdo->exec("ALTER TABLE sales ADD COLUMN credit_status ENUM('Pending','Paid','Refunded') DEFAULT NULL");
+        // Set existing Credit sales to Pending
+        $pdo->exec("UPDATE sales SET credit_status = 'Pending' WHERE sell_type = 'Credit' AND credit_status IS NULL");
+    }
 
 } catch (\PDOException $e) {
     // Return JSON error response if connection fails
