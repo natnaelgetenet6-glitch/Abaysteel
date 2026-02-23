@@ -17,14 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         
         // 1. Create Sale Record
-        $stmt = $pdo->prepare("INSERT INTO sales (total_amount, sell_type, processed_by, buyer_name, buyer_phone, buyer_address) VALUES (?, ?, ?, ?, ?, ?)");
+        $creditStatus = ($input['sellType'] === 'Credit') ? 'Pending' : null;
+        $stmt = $pdo->prepare("INSERT INTO sales (total_amount, sell_type, processed_by, buyer_name, buyer_phone, buyer_address, credit_status) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $input['total'],
             $input['sellType'],
             $input['user'],
             $input['buyer']['name'] ?? null,
             $input['buyer']['phone'] ?? null,
-            $input['buyer']['address'] ?? null
+            $input['buyer']['address'] ?? null,
+            $creditStatus
         ]);
         
         $saleId = $pdo->lastInsertId();

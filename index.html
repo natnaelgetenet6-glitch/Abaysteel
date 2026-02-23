@@ -528,10 +528,19 @@
 
           <div class="input-group">
             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Sell Type</label>
-            <select id="edit-sell-type" class="input-field">
+            <select id="edit-sell-type" class="input-field" onchange="toggleCreditStatusRow()">
               <option value="Cash">Cash</option>
               <option value="Credit">Credit</option>
               <option value="Bank Account">Bank Account</option>
+            </select>
+          </div>
+
+          <div class="input-group" id="edit-credit-status-row" style="display:none;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary)">Credit Status</label>
+            <select id="edit-credit-status" class="input-field">
+              <option value="Pending">🟡 Pending</option>
+              <option value="Paid">🟢 Paid</option>
+              <option value="Refunded">🔴 Refunded</option>
             </select>
           </div>
 

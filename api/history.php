@@ -68,14 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $buyerAddress = $input['buyer_address'] ?? null;
         $sellType = $input['sell_type'] ?? 'Cash';
         $totalAmount = $input['total_amount'] ?? 0;
+        // If switching to Credit and no credit_status given, default to Pending
+        // If switching away from Credit, clear credit_status
+        if ($sellType === 'Credit') {
+            $creditStatus = $input['credit_status'] ?? 'Pending';
+        } else {
+            $creditStatus = null;
+        }
 
         try {
             $stmt = $pdo->prepare("
                 UPDATE sales 
-                SET buyer_name = ?, buyer_phone = ?, buyer_address = ?, sell_type = ?, total_amount = ?
+                SET buyer_name = ?, buyer_phone = ?, buyer_address = ?, sell_type = ?, total_amount = ?, credit_status = ?
                 WHERE id = ?
             ");
-            $stmt->execute([$buyerName, $buyerPhone, $buyerAddress, $sellType, $totalAmount, $id]);
+            $stmt->execute([$buyerName, $buyerPhone, $buyerAddress, $sellType, $totalAmount, $creditStatus, $id]);
             
             echo json_encode(['success' => true]);
             exit;
@@ -95,6 +102,7 @@ $sql = "
         sale_date as date, 
         total_amount as amount, 
         sell_type, 
+        credit_status,
         processed_by as user, 
         buyer_name, 
         buyer_phone,
@@ -108,6 +116,7 @@ $sql = "
         expense_date as date, 
         amount, 
         NULL as sell_type, 
+        NULL as credit_status,
         NULL as user, 
         NULL as buyer_name, 
         NULL as buyer_phone,

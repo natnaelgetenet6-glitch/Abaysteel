@@ -122,6 +122,7 @@ async function fetchHistory() {
             date: h.date,
             total: h.amount, // API uses 'amount' alias for total_amount in union
             sellType: h.sell_type,
+            creditStatus: h.credit_status || null,
             user: h.user,
             buyer: {
                 name: h.buyer_name,
@@ -873,9 +874,15 @@ function renderTransactions() {
 
         if (isSale) {
             const buyerInfo = t.buyer && t.buyer.name ? `<div style="color:var(--text-secondary); font-size:0.75rem;">Buyer: ${t.buyer.name}</div>` : '';
+            const creditBadge = (t.sellType === 'Credit' && t.creditStatus)
+                ? ` <span style="font-size:0.7rem; padding:1px 5px; border-radius:3px; font-weight:600; ${t.creditStatus === 'Paid' ? 'background:#16a34a22;color:#4ade80' :
+                    t.creditStatus === 'Refunded' ? 'background:#dc262622;color:#f87171' :
+                        'background:#ca8a0422;color:#fbbf24'
+                }">${t.creditStatus}</span>`
+                : '';
             el.innerHTML = `
                 <div>
-                    <span style="color:var(--success-color); font-weight:600;">SALE (${t.sellType || 'Cash'})</span>
+                    <span style="color:var(--success-color); font-weight:600;">SALE (${t.sellType || 'Cash'}${creditBadge})</span>
                     <span style="color:var(--text-secondary); font-size:0.85rem; margin-left:0.5rem;">${new Date(t.date).toLocaleTimeString()}</span>
                     ${buyerInfo}
                 </div>
@@ -983,7 +990,20 @@ function renderHistory() {
                     ${t.buyer?.phone ? `<div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer.phone}</div>` : ''}
                     ${t.buyer?.address ? `<div style="font-size:0.75rem; color:var(--text-secondary);">${t.buyer.address}</div>` : ''}
                 </td>
-                <td style="padding: 1rem; vertical-align: top;">${t.sellType || 'Cash'}</td>
+                <td style="padding: 1rem; vertical-align: top;">
+                    ${(() => {
+                    const base = t.sellType || 'Cash';
+                    if (t.sellType === 'Credit' && t.creditStatus) {
+                        const badgeStyle = t.creditStatus === 'Paid'
+                            ? 'background:#16a34a22;color:#4ade80'
+                            : t.creditStatus === 'Refunded'
+                                ? 'background:#dc262622;color:#f87171'
+                                : 'background:#ca8a0422;color:#fbbf24';
+                        return `${base} <span style="font-size:0.75rem;padding:2px 7px;border-radius:4px;font-weight:700;${badgeStyle}">${t.creditStatus}</span>`;
+                    }
+                    return base;
+                })()}
+                </td>
                 <td style="padding: 1rem; vertical-align: top; font-weight:700;">Birr ${Number(t.total).toFixed(2)}</td>
                 <td style="padding: 1rem; vertical-align: top; display: flex; gap: 0.5rem;">
                      ${currentUser && currentUser.role === 'admin' ? `
@@ -1055,7 +1075,24 @@ function editHistoryItem(sale) {
     document.getElementById('edit-sell-type').value = sale.sellType || 'Cash';
     document.getElementById('edit-total-amount').value = sale.total;
 
+    // Show/set credit status
+    const creditStatusEl = document.getElementById('edit-credit-status');
+    const creditStatusRow = document.getElementById('edit-credit-status-row');
+    if (sale.sellType === 'Credit') {
+        creditStatusEl.value = sale.creditStatus || 'Pending';
+        creditStatusRow.style.display = 'block';
+    } else {
+        creditStatusEl.value = 'Pending';
+        creditStatusRow.style.display = 'none';
+    }
+
     openModal('edit-sale-modal');
+}
+
+function toggleCreditStatusRow() {
+    const sellType = document.getElementById('edit-sell-type').value;
+    const row = document.getElementById('edit-credit-status-row');
+    row.style.display = (sellType === 'Credit') ? 'block' : 'none';
 }
 
 document.getElementById('edit-sale-form').addEventListener('submit', async (e) => {
@@ -1066,6 +1103,9 @@ document.getElementById('edit-sale-form').addEventListener('submit', async (e) =
     const buyerAddress = document.getElementById('edit-buyer-address').value;
     const sellType = document.getElementById('edit-sell-type').value;
     const totalAmount = parseFloat(document.getElementById('edit-total-amount').value);
+    const creditStatus = sellType === 'Credit'
+        ? document.getElementById('edit-credit-status').value
+        : null;
 
     try {
         const res = await fetch(`${API_URL}/history.php`, {
@@ -1078,7 +1118,8 @@ document.getElementById('edit-sale-form').addEventListener('submit', async (e) =
                 buyer_phone: buyerPhone,
                 buyer_address: buyerAddress,
                 sell_type: sellType,
-                total_amount: totalAmount
+                total_amount: totalAmount,
+                credit_status: creditStatus
             })
         });
 
