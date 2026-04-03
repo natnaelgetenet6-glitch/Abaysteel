@@ -7,19 +7,21 @@ header('Access-Control-Allow-Origin: *');
 // Get Date Filters
 $startDate = $_GET['startDate'] ?? date('Y-m-01'); // Default to first day of current month
 $endDate = $_GET['endDate'] ?? date('Y-m-d'); // Default to today
+// Compute next day in PHP to avoid MySQL prepare statement issues with INTERVAL
+$nextDay = date('Y-m-d', strtotime($endDate . ' +1 day'));
 
 try {
     // 1. Summary Stats
     // ----------------
 
     // 1a. Total Sales (Revenue)
-    $stmt = $pdo->prepare("SELECT SUM(total_amount) as total FROM sales WHERE sale_date >= ? AND sale_date <= ? + INTERVAL 1 DAY AND (sell_type != 'Credit' OR credit_status = 'Paid')");
-    $stmt->execute([$startDate, $endDate]);
+    $stmt = $pdo->prepare("SELECT SUM(total_amount) as total FROM sales WHERE sale_date >= ? AND sale_date < ? AND (sell_type != 'Credit' OR credit_status = 'Paid')");
+    $stmt->execute([$startDate, $nextDay]);
     $totalSales = $stmt->fetch()['total'] ?? 0;
 
     // 1b. Total Expenses
-    $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM expenses WHERE expense_date >= ? AND expense_date <= ? + INTERVAL 1 DAY");
-    $stmt->execute([$startDate, $endDate]);
+    $stmt = $pdo->prepare("SELECT SUM(amount) as total FROM expenses WHERE expense_date >= ? AND expense_date < ?");
+    $stmt->execute([$startDate, $nextDay]);
     $totalExpenses = $stmt->fetch()['total'] ?? 0;
 
     // 1c. Cost of Goods Sold (COGS)
@@ -32,11 +34,11 @@ try {
         FROM sale_items si
         JOIN sales s ON si.sale_id = s.id
         LEFT JOIN products p ON si.product_id = p.id
-        WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
+        WHERE s.sale_date >= ? AND s.sale_date < ?
         AND (s.sell_type != 'Credit' OR s.credit_status = 'Paid')
     ";
     $stmt = $pdo->prepare($cogsSql);
-    $stmt->execute([$startDate, $endDate]);
+    $stmt->execute([$startDate, $nextDay]);
     $totalCOGS = $stmt->fetch()['total_cogs'] ?? 0;
 
     $grossProfit = $totalSales - $totalCOGS;
@@ -54,13 +56,13 @@ try {
         FROM sale_items si
         JOIN sales s ON si.sale_id = s.id
         LEFT JOIN products p ON si.product_id = p.id
-        WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
+        WHERE s.sale_date >= ? AND s.sale_date < ?
         AND (s.sell_type != 'Credit' OR s.credit_status = 'Paid')
         GROUP BY DATE(s.sale_date)
         ORDER BY DATE(s.sale_date) ASC
     ";
     $stmt = $pdo->prepare($trendSql);
-    $stmt->execute([$startDate, $endDate]);
+    $stmt->execute([$startDate, $nextDay]);
     $trendData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Format trend data for chart
@@ -89,14 +91,14 @@ try {
         FROM sale_items si
         JOIN sales s ON si.sale_id = s.id
         LEFT JOIN products p ON si.product_id = p.id
-        WHERE s.sale_date >= ? AND s.sale_date <= ? + INTERVAL 1 DAY
+        WHERE s.sale_date >= ? AND s.sale_date < ?
         AND (s.sell_type != 'Credit' OR s.credit_status = 'Paid')
         GROUP BY COALESCE(si.product_name, p.name)
         ORDER BY total_revenue DESC
         LIMIT 5
     ";
     $stmt = $pdo->prepare($topSql);
-    $stmt->execute([$startDate, $endDate]);
+    $stmt->execute([$startDate, $nextDay]);
     $topSells = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
