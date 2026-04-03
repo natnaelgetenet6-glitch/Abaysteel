@@ -119,8 +119,9 @@ try {
         'topSells' => $topSells
     ]);
 
-} catch (Exception $e) {
+} catch (\Throwable $e) {
+    file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . ' ERROR: ' . $e->getMessage() . "\n", FILE_APPEND);
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 }
 ?>
